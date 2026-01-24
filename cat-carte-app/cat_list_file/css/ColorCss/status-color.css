@@ -1,0 +1,29 @@
+/* 保護、治療、卒業、永眠などのステータスに応じた色設定用CSSファイル */
+
+/* 保護・預かり・未設定（青緑：おすすめ） */
+.st-stay {
+  --st-color: #0277bd;
+  --st-bg: #e1f5fe;
+}
+
+/* 治療/入院（赤） */
+.st-medical {
+  --st-color: #c62828;
+  --st-bg: #ffebee;
+}
+/* Trial（緑） */
+.st-trial {
+  --st-color: #2e7d32; /* 緑 */
+  --st-bg: #e8f5e9;
+}
+/* 卒業/卒業予定（紫） */
+.st-grad {
+  --st-color: #7b1fa2; /* 紫 */
+  --st-bg: #f3e5f5;
+}
+
+/* 永眠（黒） */
+.st-death {
+  --st-color: #ffffff;
+  --st-bg: #333333;
+}

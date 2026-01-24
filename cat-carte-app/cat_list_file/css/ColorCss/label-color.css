@@ -1,0 +1,97 @@
+/* FFの結果や、手術、ワクチン、ノミ取りに割り当てられた色 */
+
+/* 一覧表側 */
+/* FF結果（必要なら class 付与で色分けできる） */
+.test-negative {
+  color: #1565c0;
+  font-weight: bold;
+}
+.test-positive-fiv {
+  color: #d46d39;
+  font-weight: bold;
+}
+.test-positive-felv {
+  color: #f50284;
+  font-weight: bold;
+}
+
+.test-positive-both {
+  color: #a806ff;
+  font-weight: bold;
+}
+.test-none {
+  color: #888;
+}
+
+/* 個別カルテ側のカラーラベル */
+/* 陽性(FeLV+)  */
+.label-positive-felv,
+.test-positive-felv {
+  color: #f50284;
+  font-weight: bold;
+}
+
+/* 陽性(FIV+)  */
+.label-positive-fiv,
+.test-positive-fiv {
+  color: #d46d39;
+  font-weight: bold;
+}
+
+/* 両方陽性  */
+.label-positive-both,
+.test-positive-both {
+  color: #a806ff;
+  font-weight: bold;
+}
+
+/* 手術の色 */
+.label-surgery {
+  color: #81418d;
+  /* 紫 */
+  font-weight: bold;
+  display: inline-block;
+}
+
+/* ワクチンの色 */
+.label-vaccine {
+  color: #a99628;
+  font-weight: bold;
+  display: inline-block;
+}
+
+/* ノミ駆除の色 */
+.label-flea {
+  color: #1cc810;
+  font-weight: bold;
+  display: inline-block;
+}
+
+/* 陰性 */
+.label-negative,
+.test-negative {
+  color: #1565c0;
+  font-weight: bold;
+}
+
+/* 未検査 */
+.test-none {
+  color: #888;
+}
+
+/* 以下は一旦没 */
+/* ff-theme-manager.jsのON,OFFで変わるアクセントカラー */
+body.theme-both {
+  --accent: #a806ff;
+}
+body.theme-negative {
+  --accent: #1565c0;
+}
+
+body.theme-fiv {
+  --accent: #d46d39;
+}
+
+body.theme-felv {
+  --accent: #f50284;
+}
