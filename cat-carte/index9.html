@@ -1,1 +1,769 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>index9</title>
+    <!-- FF結果とステータス絞り込みを追加。 -->
+    <!-- ワクチン、ノミ取りの期限切れ機能を追加 -->
+    <!-- https://chatgpt.com/c/69741008-6324-8322-8a29-d29390754100 -->
+    <!-- 削除機能を追加 -->
+    <link rel="stylesheet" href="cat_list_file/css/ColorCss/label-color.css" />
+    <link rel="stylesheet" href="cat_list_file/css/ColorCss/status-color.css" />
 
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 10px;
+        background-color: #f4f4f4;
+        color: #333;
+      }
+
+      .container {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        max-width: 1200px;
+        margin: auto;
+      }
+
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        height: 40px;
+      }
+
+      h2 {
+        font-size: 1.2rem;
+        margin: 0;
+      }
+
+      .btn-main {
+        padding: 6px 12px;
+        cursor: pointer;
+        background: #ff9800;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+
+      /* 検索パネル */
+      .controls-wrapper {
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: #f9f9f9;
+        overflow: hidden;
+      }
+
+      .controls-summary {
+        padding: 8px 15px;
+        background: #eee;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .controls-content {
+        padding: 15px;
+        display: none;
+      }
+
+      .controls-content.active {
+        display: block;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+
+      .search-box {
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 250px;
+      }
+
+      /* テーブル関連 */
+      .table-wrapper {
+        max-height: 70vh;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        background: white;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1000px;
+      }
+
+      thead th {
+        position: sticky;
+        top: 0;
+        background-color: #eee;
+        z-index: 20;
+        border-bottom: 2px solid #ccc;
+        padding: 8px;
+        text-align: center;
+        font-size: 12px;
+      }
+
+      .th-content-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      /* 2列目（状態）を中央寄せ */
+      table td:nth-child(2) {
+        text-align: center;
+      }
+
+      .sortable-label {
+        cursor: pointer;
+        color: #007bff;
+        white-space: nowrap;
+        flex-grow: 1;
+      }
+
+      .filter-trigger {
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 3px;
+        background: #ddd;
+        font-size: 10px;
+        user-select: none;
+      }
+
+      /* ドロップダウンメニュー (Fixed配置) */
+      .filter-dropdown {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        background: white;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        min-width: 180px;
+        padding: 12px;
+        border-radius: 6px;
+        font-weight: normal;
+      }
+
+      .filter-dropdown.active {
+        display: block;
+      }
+
+      .dropdown-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .close-btn {
+        cursor: pointer;
+        font-size: 18px;
+        color: #999;
+        line-height: 1;
+      }
+
+      .close-btn:hover {
+        color: #333;
+      }
+
+      .dropdown-btns {
+        display: flex;
+        gap: 5px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .btn-sm {
+        padding: 3px 8px;
+        cursor: pointer;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        font-size: 11px;
+      }
+
+      /* 2列グリッド表示 */
+      .gender-grid,
+      .ff-grid,
+      .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .gender-grid label,
+      .ff-grid label,
+      .status-grid label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      /* 行 */
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        font-size: 13px;
+      }
+      tr:hover {
+        background-color: #fff9f0;
+        cursor: pointer;
+      }
+      .thumb-cell {
+        width: 50px;
+        text-align: center;
+      }
+      .cat-thumb {
+        width: 40px;
+        height: 40px;
+        border-radius: 20%;
+        object-fit: cover;
+      }
+
+      /* ===== 状態バッジ（色は status-color.css 側の st-* が担当） ===== */
+      .status-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: bold;
+        border: 2px solid var(--st-color, #999);
+        color: var(--st-color, #333);
+        background: var(--st-bg, #eee);
+      }
+
+      /* 期限警告：赤字 */
+      .alert-text {
+        color: #d32f2f;
+        font-weight: bold;
+      }
+
+      /* 期間：カード＆数値入力 */
+      .filter-card {
+        background: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .input-num {
+        width: 35px;
+        padding: 2px;
+        text-align: center;
+      }
+
+      /* ⚠ 点滅 */
+      @keyframes blinkWarn {
+        0%,
+        50% {
+          opacity: 1;
+        }
+        51%,
+        100% {
+          opacity: 0.25;
+        }
+      }
+      .warn-icon {
+        display: inline-block;
+        margin-left: 4px;
+        animation: blinkWarn 1s step-end infinite;
+      }
+
+      /* 右クリックメニュー */
+      .ctx-menu {
+        position: fixed;
+        z-index: 2000;
+        min-width: 180px;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+        padding: 6px;
+      }
+      .ctx-item {
+        width: 100%;
+        text-align: left;
+        border: 0;
+        background: transparent;
+        padding: 8px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .ctx-item:hover {
+        background: #f3f3f3;
+      }
+      .ctx-item.danger {
+        color: #d32f2f;
+        font-weight: bold;
+      }
+      .ctx-item.danger:hover {
+        background: #ffebee;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header-row">
+        <h2>猫・保護個体一覧</h2>
+        <div>
+          <span id="counter" style="margin-right: 15px; font-weight: bold">登録数: 0匹 (該当: 0件)</span>
+          <button class="btn-main" onclick="openDetail('new')">＋ 新規登録</button>
+        </div>
+      </div>
+
+      <div class="controls-wrapper">
+        <div class="controls-summary" onclick="document.querySelector('.controls-content').classList.toggle('active')">
+          <span>🔍 検索・絞り込み条件（クリックで開閉）</span>
+        </div>
+        <div class="controls-content">
+          <div class="filter-group">
+            <strong>検索：</strong>
+            <input
+              type="text"
+              id="searchKeyword"
+              class="search-box"
+              placeholder="名前、出身等で検索..."
+              oninput="updateView()"
+            />
+          </div>
+
+          <div class="filter-group">
+            <strong>期間：</strong>
+
+            <div class="filter-card">
+              ワクチン最終から
+              <input type="number" id="alert_vac_y" class="input-num" value="0" oninput="updateView()" /> 年
+              <input type="number" id="alert_vac_m" class="input-num" value="0" oninput="updateView()" /> ヶ月以上
+            </div>
+
+            <div class="filter-card">
+              ノミ取り最新から
+              <input type="number" id="alert_flea_m" class="input-num" value="0" oninput="updateView()" /> ヶ月以上
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px">写真</th>
+
+              <th>
+                <div class="th-content-wrapper">
+                  <span class="sortable-label" onclick="sortData('status')">状態 ↕</span>
+                  <span class="filter-trigger" onclick="toggleDropdown(event, 'statusDropdown')">▼</span>
+
+                  <div id="statusDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
+                    <div class="dropdown-header">
+                      <strong>状態フィルター</strong>
+                      <span class="close-btn" onclick="closeDropdown('statusDropdown')">×</span>
+                    </div>
+
+                    <div class="dropdown-btns">
+                      <button class="btn-sm" onclick="toggleFilters('statusFilters', true)">全選択</button>
+                      <button class="btn-sm" style="background: #666" onclick="toggleFilters('statusFilters', false)">
+                        全解除
+                      </button>
+                    </div>
+
+                    <div id="statusFilters" class="status-grid">
+                      <label><input type="checkbox" value="保護中" checked onchange="updateView()" /> 保護中</label>
+                      <label><input type="checkbox" value="預かり中" checked onchange="updateView()" /> 預かり中</label>
+                      <label><input type="checkbox" value="治療中" checked onchange="updateView()" /> 治療中</label>
+                      <label><input type="checkbox" value="入院中" checked onchange="updateView()" /> 入院中</label>
+                      <label
+                        ><input type="checkbox" value="Trial予定" checked onchange="updateView()" /> Trial予定</label
+                      >
+                      <label><input type="checkbox" value="Trial中" checked onchange="updateView()" /> Trial中</label>
+                      <label><input type="checkbox" value="卒業" checked onchange="updateView()" /> 卒業</label>
+                      <label><input type="checkbox" value="卒業予定" checked onchange="updateView()" /> 卒業予定</label>
+                      <label><input type="checkbox" value="永眠" checked onchange="updateView()" /> 永眠</label>
+                      <label><input type="checkbox" value="未設定" checked onchange="updateView()" /> 未設定</label>
+                    </div>
+                  </div>
+                </div>
+              </th>
+
+              <th class="sortable" onclick="sortData('name')">名前 ↕</th>
+
+              <th>
+                <div class="th-content-wrapper">
+                  <span class="sortable-label" onclick="sortData('gender')">性別 ↕</span>
+                  <span class="filter-trigger" onclick="toggleDropdown(event, 'genderDropdown')">▼</span>
+
+                  <div id="genderDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
+                    <div class="dropdown-header">
+                      <strong>性別フィルター</strong>
+                      <span class="close-btn" onclick="closeDropdown('genderDropdown')">×</span>
+                    </div>
+
+                    <div class="dropdown-btns">
+                      <button class="btn-sm" onclick="toggleFilters('genderFilters', true)">全選択</button>
+                      <button class="btn-sm" style="background: #666" onclick="toggleFilters('genderFilters', false)">
+                        全解除
+                      </button>
+                    </div>
+
+                    <div id="genderFilters" class="gender-grid">
+                      <label><input type="checkbox" value="メス" checked onchange="updateView()" /> メス</label>
+                      <label><input type="checkbox" value="オス" checked onchange="updateView()" /> オス</label>
+                      <label
+                        ><input type="checkbox" value="メス(避妊済)" checked onchange="updateView()" /> 避妊済</label
+                      >
+                      <label
+                        ><input type="checkbox" value="オス(去勢済)" checked onchange="updateView()" /> 去勢済</label
+                      >
+                      <label><input type="checkbox" value="不明" checked onchange="updateView()" /> 不明</label>
+                    </div>
+                  </div>
+                </div>
+              </th>
+
+              <th class="sortable" onclick="sortData('age_val')">年齢 ↕</th>
+
+              <th>
+                <div class="th-content-wrapper">
+                  <span class="sortable-label" onclick="sortData('ff_result')">FF結果 ↕</span>
+                  <span class="filter-trigger" onclick="toggleDropdown(event, 'ffDropdown')">▼</span>
+
+                  <div id="ffDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
+                    <div class="dropdown-header">
+                      <strong>FF結果フィルター</strong>
+                      <span class="close-btn" onclick="closeDropdown('ffDropdown')">×</span>
+                    </div>
+
+                    <div class="dropdown-btns">
+                      <button class="btn-sm" onclick="toggleFilters('ffFiltersHeader', true)">全選択</button>
+                      <button class="btn-sm" style="background: #666" onclick="toggleFilters('ffFiltersHeader', false)">
+                        全解除
+                      </button>
+                    </div>
+
+                    <div id="ffFiltersHeader" class="ff-grid">
+                      <label><input type="checkbox" value="未検査" checked onchange="updateView()" /> 未検査</label>
+                      <label><input type="checkbox" value="陰性" checked onchange="updateView()" /> 陰性</label>
+                      <label><input type="checkbox" value="FIV+" checked onchange="updateView()" /> FIV+</label>
+                      <label><input type="checkbox" value="FeLV+" checked onchange="updateView()" /> FeLV+</label>
+                      <label><input type="checkbox" value="両方+" checked onchange="updateView()" /> 両方+</label>
+                    </div>
+                  </div>
+                </div>
+              </th>
+
+              <th>出身地</th>
+              <th>卒業先</th>
+              <th class="sortable" onclick="sortData('last_vaccine')">最終ワクチン ↕</th>
+              <th class="sortable" onclick="sortData('last_flea')">最新ノミ取り ↕</th>
+            </tr>
+          </thead>
+
+          <tbody id="catList"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="ctxMenu" class="ctx-menu" hidden>
+      <button type="button" id="ctxDeleteBtn" class="ctx-item danger">この猫を削除</button>
+      <button type="button" id="ctxCancelBtn" class="ctx-item">キャンセル</button>
+    </div>
+    <script>
+      /* --- DB & Data Logic --- */
+      const DB_NAME = "CatManagementDB";
+      const STORE_SUMMARY = "cat_summaries";
+      const STORE_DETAIL = "cat_details";
+
+      let cats = [];
+      let sortConfig = { key: null, direction: 1 };
+
+      async function loadData() {
+        const db = await new Promise((res) => {
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onsuccess = (e) => res(e.target.result);
+        });
+
+        cats = await new Promise((res) => {
+          const tx = db.transaction(STORE_SUMMARY, "readonly");
+          const req = tx.objectStore(STORE_SUMMARY).getAll();
+          req.onsuccess = () => res(req.result);
+        });
+
+        updateView();
+      }
+
+      /* --- helpers：index8内に必ず置く（警告が安定する） --- */
+      function formatDateShort(dateStr) {
+        if (!dateStr) return "---";
+        const d = new Date(dateStr);
+        if (isNaN(d)) return "---";
+        const y = String(d.getFullYear()).slice(2);
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `'${y}/${m}/${day}`;
+      }
+
+      // 何ヶ月前か。無効/未来は -1
+      function getDiffMonths(dateStr) {
+        if (!dateStr) return -1;
+        const d = new Date(dateStr);
+        if (isNaN(d)) return -1;
+
+        const now = new Date();
+        let months = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+        if (now.getDate() < d.getDate()) months -= 1;
+        return months < 0 ? -1 : months;
+      }
+
+      /* --- UI Logic --- */
+      function toggleDropdown(event, id) {
+        event.stopPropagation();
+        const target = document.getElementById(id);
+        const trigger = event.currentTarget;
+        const isActive = target.classList.contains("active");
+
+        document.querySelectorAll(".filter-dropdown").forEach((d) => d.classList.remove("active"));
+
+        if (!isActive) {
+          const rect = trigger.getBoundingClientRect();
+          target.style.top = rect.bottom + 5 + "px";
+          target.style.left = Math.min(rect.left, window.innerWidth - 200) + "px";
+          target.classList.add("active");
+        }
+      }
+
+      function closeDropdown(id) {
+        document.getElementById(id).classList.remove("active");
+      }
+
+      window.onclick = () => document.querySelectorAll(".filter-dropdown").forEach((d) => d.classList.remove("active"));
+
+      function toggleFilters(groupId, checked) {
+        document.querySelectorAll(`#${groupId} input`).forEach((cb) => (cb.checked = checked));
+        updateView();
+      }
+
+      function getStatusBadgeClass(statusText) {
+        const s = (statusText || "").toString().trim();
+        const base = s.split(/[（( 　:：]/)[0].trim();
+
+        if (!base) return "st-stay";
+        if (base.includes("卒業")) return "st-grad";
+        if (base.includes("永眠")) return "st-death";
+        if (base.includes("Trial")) return "st-trial";
+        if (base.includes("治療") || base.includes("入院")) return "st-medical";
+        return "st-stay";
+      }
+
+      function updateView() {
+        const selStatuses = Array.from(document.querySelectorAll("#statusFilters input:checked")).map((cb) => cb.value);
+        const keyword = document.getElementById("searchKeyword").value.toLowerCase();
+        const selGenders = Array.from(document.querySelectorAll("#genderFilters input:checked")).map((cb) => cb.value);
+        const selFF = Array.from(document.querySelectorAll(`#ffFiltersHeader input:checked`)).map((cb) => cb.value);
+
+        const limitVac =
+          (parseInt(document.getElementById("alert_vac_y").value) || 0) * 12 +
+          (parseInt(document.getElementById("alert_vac_m").value) || 0);
+
+        const limitFlea = parseInt(document.getElementById("alert_flea_m").value) || 0;
+
+        const filtered = cats.filter((c) => {
+          // 状態判定（先頭の状態名だけ）
+          const rawStatus = (c.status || "").toString().trim();
+          const baseStatus = rawStatus.split(/[ 　:：]/)[0];
+
+          const matchStatus =
+            (baseStatus && selStatuses.includes(baseStatus)) || (!baseStatus && selStatuses.includes("未設定"));
+
+          const matchKeyword = !keyword || `${c.name} ${c.origin} ${c.foster}`.toLowerCase().includes(keyword);
+          const matchGender = selGenders.includes(c.gender || "不明");
+
+          // FFキー化（簡易）
+          let ffKey = "未検査";
+          if (c.ff_result) {
+            if (c.ff_result.includes("FIV+/FeLV+") || (c.ff_result.includes("FIV+") && c.ff_result.includes("FeLV+")))
+              ffKey = "両方+";
+            else if (c.ff_result.includes("陰性")) ffKey = "陰性";
+            else if (c.ff_result.includes("FIV+")) ffKey = "FIV+";
+            else if (c.ff_result.includes("FeLV+")) ffKey = "FeLV+";
+          }
+          const matchFF = selFF.includes(ffKey);
+
+          // ※期限は「表示」だけに使う（絞り込みに混ぜない）
+          return matchKeyword && matchStatus && matchGender && matchFF;
+        });
+
+        renderList(filtered, limitVac, limitFlea);
+      }
+
+      function getFFClass(text) {
+        if (!text || text === "未検査") return "test-none";
+        if (text.includes("FIV+/FeLV+")) return "test-positive-both";
+        if (text.includes("FeLV+")) return "test-positive-felv";
+        if (text.includes("FIV+")) return "test-positive-fiv";
+        if (text.includes("陰性")) return "test-negative";
+        return "";
+      }
+
+      function renderList(data, lVac, lFlea) {
+        const list = document.getElementById("catList");
+        list.innerHTML = "";
+
+        data.forEach((c) => {
+          const dVac = getDiffMonths(c.last_vaccine);
+          const dFlea = getDiffMonths(c.last_flea);
+          const vAlert = dVac >= lVac && lVac > 0;
+          const fAlert = dFlea >= lFlea && lFlea > 0;
+          const stClass = getStatusBadgeClass(c.status);
+          const vacText = formatDateShort(c.last_vaccine) + (vAlert ? ' <span class="warn-icon">⚠</span>' : "");
+          const fleaText = formatDateShort(c.last_flea) + (fAlert ? ' <span class="warn-icon">⚠</span>' : "");
+          const row = document.createElement("tr");
+          row.onclick = () => (window.location.href = `28+33 G5.html?id=${c.id}`);
+          row.addEventListener("contextmenu", (e) => {
+            e.preventDefault(); // ブラウザ標準メニューを出さない
+            e.stopPropagation(); // window clickで即閉じないように
+            openCtxMenu(e.clientX, e.clientY, c.id);
+          });
+
+          row.innerHTML = `
+            <td class="thumb-cell">${c.photo ? `<img src="${c.photo}" class="cat-thumb">` : ""}</td>
+            <td><span class="status-badge ${stClass}">${c.status || "在留"}</span></td>
+            <td><strong>${c.name || "名前なし"}</strong></td>
+            <td>${c.gender || "---"}</td>
+            <td>${c.age_text || "---"}</td>
+            <td class="${getFFClass(c.ff_result)}">${c.ff_result || "未検査"}</td>
+          
+            <td>${c.origin || "---"}</td>
+            <td>${c.foster || "---"}</td>
+            <td class="${vAlert ? "alert-text" : ""}">${vacText}</td>
+            <td class="${fAlert ? "alert-text" : ""}">${fleaText}</td>
+          `;
+
+          list.appendChild(row);
+        });
+
+        document.getElementById("counter").innerText = `登録数: ${cats.length}匹 (該当: ${data.length}件)`;
+      }
+
+      function sortData(key) {
+        if (sortConfig.key === key) sortConfig.direction *= -1;
+        else {
+          sortConfig.key = key;
+          sortConfig.direction = 1;
+        }
+        cats.sort(
+          (a, b) => (a[key] || "").toString().localeCompare((b[key] || "").toString(), "ja") * sortConfig.direction,
+        );
+        updateView();
+      }
+
+      window.onload = loadData;
+
+      // ※ openDetail はあなたの環境に合わせて別ファイルか既存実装を使ってください
+      function openDetail(mode) {
+        if (mode === "new") {
+          window.location.href = `28+33 G5.html?id=new`;
+        }
+      }
+
+      let ctxTargetId = null;
+
+      function openCtxMenu(x, y, catId) {
+        const menu = document.getElementById("ctxMenu");
+        ctxTargetId = catId;
+
+        // 画面外にはみ出さないように調整
+        menu.hidden = false;
+        const w = 200;
+        const h = 92;
+        const left = Math.min(x, window.innerWidth - w - 6);
+        const top = Math.min(y, window.innerHeight - h - 6);
+
+        menu.style.left = left + "px";
+        menu.style.top = top + "px";
+      }
+
+      function closeCtxMenu() {
+        const menu = document.getElementById("ctxMenu");
+        menu.hidden = true;
+        ctxTargetId = null;
+      }
+
+      // DBオープン（index8の loadData と同じDBを使う）
+      function openDB() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onsuccess = (e) => resolve(e.target.result);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async function deleteCatById(catId) {
+        if (!catId || catId === "new") return;
+
+        // ここは最小で confirm にしています（必要ならカスタムモーダルに差し替え可能）
+        const ok = window.confirm("この登録を削除します。元に戻せません。よろしいですか？");
+        if (!ok) return;
+
+        const db = await openDB();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction([STORE_SUMMARY, STORE_DETAIL], "readwrite");
+          tx.objectStore(STORE_SUMMARY).delete(catId);
+          tx.objectStore(STORE_DETAIL).delete(catId);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+
+        // 画面側の配列も更新して再描画
+        cats = cats.filter((c) => c.id !== catId);
+        updateView();
+      }
+
+      // メニューのボタンイベント（初回だけ）
+      (function initCtxMenu() {
+        const delBtn = document.getElementById("ctxDeleteBtn");
+        const cancelBtn = document.getElementById("ctxCancelBtn");
+
+        delBtn.addEventListener("click", async () => {
+          const id = ctxTargetId;
+          closeCtxMenu();
+          await deleteCatById(id);
+        });
+
+        cancelBtn.addEventListener("click", () => closeCtxMenu());
+
+        // 画面クリックで閉じる
+        window.addEventListener("click", () => closeCtxMenu());
+        // Escで閉じる
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeCtxMenu();
+        });
+      })();
+    </script>
+    <!-- 右クリック用メニュー -->
+  </body>
+</html>
