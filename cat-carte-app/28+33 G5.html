@@ -1,0 +1,1363 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>28+33 G5</title>
+    <!-- スマホ版のレイアウトを変更 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="stylesheet" href="cat_list_file/css/ColorCss/label-color.css" />
+    <link rel="stylesheet" href="cat_list_file/css/ColorCss/status-color.css" />
+    <style>
+      :root {
+        --main-bg: #fdf6f0;
+        --accent: #ff9800;
+        --text: #333;
+        --nav-height: 50px;
+        --sticky-bar-height: 44px;
+        --danger: #d9534f;
+        --container-max-width: 900px;
+      }
+
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        background: var(--main-bg);
+        color: var(--text);
+        padding-bottom: 50px;
+      }
+
+      .container {
+        max-width: var(--container-max-width);
+        margin: auto;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+
+      /* --- 名前固定バー (Slide33仕様) --- */
+      #sticky_name_bar {
+        position: fixed;
+        top: var(--nav-height);
+        /* ナビの下に出す */
+        left: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.98);
+        height: var(--sticky-bar-height);
+        /* 48px程度推奨 */
+        display: none;
+        z-index: 900;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+      }
+
+      .sticky-inner {
+        max-width: var(--container-max-width);
+        margin: auto;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        height: 100%;
+      }
+
+      .sticky-name-box {
+        width: 240px;
+        flex-shrink: 0;
+      }
+
+      #sticky_name_bar .name-text {
+        color: var(--accent);
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      @media (max-width: 600px) {
+        .sticky-name-box {
+          width: 100%;
+        }
+      }
+
+      /* --- ナビゲーションバー --- */
+      .nav-bar {
+        display: flex;
+        justify-content: center;
+        background: #555;
+        height: var(--nav-height);
+        align-items: center;
+        gap: 8px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        transition: top 0.2s ease;
+      }
+
+      .nav-bar a,
+      .nav-bar button {
+        color: white;
+        text-decoration: none;
+        padding: 6px 12px;
+        font-size: 13px;
+        background: #666;
+        border: none;
+        border-radius: 4px;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+
+      .nav-bar .back-btn {
+        background: var(--accent);
+        font-weight: bold;
+      }
+
+      /* --- 共通セクションスタイル --- */
+      section {
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        scroll-margin-top: calc(var(--nav-height) + 50px);
+      }
+
+      .h2-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 5px;
+      }
+
+      h2 {
+        font-size: 18px;
+        border-left: 5px solid var(--accent);
+        padding-left: 10px;
+        margin: 0;
+      }
+
+      /* summary（見出し部分）をポインタにし、ホバーで色を変える */
+      summary {
+        cursor: pointer;
+        user-select: none;
+        /* テキスト選択を防ぐ */
+        padding: 8px 0;
+        color: #666;
+        transition: all 0.2s ease;
+        outline: none;
+      }
+
+      summary:hover {
+        color: var(--accent);
+      }
+
+      /* detailsが開いている時の枠と背景の調整 */
+      details[open] {
+        background: rgba(255, 152, 0, 0.05);
+        /* ほんのりアクセント色背景 */
+        padding: 0 10px 10px 10px;
+        border-radius: 8px;
+        margin-top: 5px;
+      }
+
+      /* 開いている時の見出しを強調 */
+      details[open] summary {
+        color: var(--accent);
+        font-weight: bold;
+        border-bottom: 1px dashed #ccc;
+        margin-bottom: 10px;
+      }
+
+      .flex-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .flex-box {
+        flex: 1;
+        min-width: 320px;
+      }
+
+      /* --- #top (Slide33ベース) のスタイル --- */
+      .basic-info-display {
+        display: flex;
+        gap: 25px;
+        margin-top: 10px;
+      }
+
+      .main-profile-column {
+        width: 240px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .name-row-mobile {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .cat-name-display {
+        color: var(--accent);
+        font-size: 28px;
+        font-weight: bold;
+        line-height: 1.1;
+      }
+
+      .photo-area {
+        width: 240px;
+        height: 240px;
+        border: 2px dashed #ccc;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #f9f9f9;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .photo-area img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .photo-placeholder {
+        font-size: 12px;
+        color: #888;
+        text-align: center;
+      }
+
+      /* ホバー時の「変更する」表示 (GG28から維持) */
+      .photo-area:hover::after {
+        content: "変更する";
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        font-size: 12px;
+        text-align: center;
+        padding: 6px 0;
+      }
+
+      .photo-area.dragover {
+        border-color: var(--accent);
+        background-color: #fff5e6;
+      }
+
+      .status-stamp {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 10;
+        padding: 3px 10px;
+        border: 3px double var(--danger);
+        color: var(--danger);
+        font-weight: bold;
+        font-size: 14px;
+        transform: rotate(-10deg);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .photo-del-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(217, 83, 79, 0.8);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        cursor: pointer;
+      }
+
+      .top-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .top-switch {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .top-tabs-group {
+        display: flex;
+        gap: 4px;
+        background: #eee;
+        padding: 4px;
+        border-radius: 999px;
+        width: 70%;
+      }
+
+      .top-tab {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 8px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #666;
+        font-weight: bold;
+        text-align: center;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+
+      .top-tab.is-active {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .edit-trigger {
+        background: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        color: #999;
+        font-size: 18px;
+        padding: 5px;
+        border-radius: 4px;
+      }
+
+      .edit-trigger:hover {
+        color: var(--accent);
+        border-color: #ddd;
+        background: #f9f9f9;
+      }
+
+      .edit-trigger-mobile {
+        display: none;
+      }
+
+      .slide-container {
+        overflow: hidden;
+      }
+
+      .slide-pages {
+        display: flex;
+        transition: transform 250ms ease-out;
+      }
+
+      .slide-page {
+        width: 100%;
+        flex: 0 0 100%;
+      }
+
+      .slide-pages[data-page="0"] {
+        transform: translateX(0%);
+      }
+
+      .slide-pages[data-page="1"] {
+        transform: translateX(-100%);
+      }
+
+      /* 主要タブ (バッジ) */
+      .summary-badges {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        /* 50%ずつの等幅に固定 */
+        gap: 15px;
+        /* margin-top: 10px; */
+        width: 100%;
+        /* 全幅を使用 */
+      }
+
+      .badge-item {
+        background: #fdfdfd;
+        border: 1px solid #f0f0f0;
+        padding: 15px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+        /* 中身がはみ出さないようにガード */
+      }
+
+      .badge-label {
+        font-size: 13px;
+        color: #888;
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      #summary_birth_date {
+        display: inline-block;
+      }
+
+      .badge-val {
+        font-size: 18px;
+        font-weight: bold;
+        display: block;
+        min-height: 24px;
+        color: var(--text);
+      }
+
+      .badge-sub-text {
+        font-size: 14px;
+        font-weight: normal;
+        color: #666;
+        margin-top: 8px;
+        border-top: 1px dashed #eee;
+        padding-top: 5px;
+      }
+
+      /* 詳細タブ */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .info-grid .label {
+        font-size: 13px;
+        color: #888;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 3px;
+      }
+
+      .info-grid .val {
+        font-size: 17px;
+        font-weight: bold;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 3px;
+        display: block;
+        min-height: 22px;
+      }
+
+      .foster-info-area {
+        /* margin-top: 15px; */
+        padding-top: 15px;
+        border-bottom: 1px dashed #ddd;
+      }
+
+      textarea {
+        width: 100% !important;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 16px;
+        resize: vertical;
+      }
+
+      /* --- ログ・共通UI --- */
+      .log-box {
+        background: #fffbe6;
+        padding: 12px;
+        border-radius: 6px;
+        border-left: 5px solid #ffc107;
+      }
+
+      .log-summary .v-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 6px 0;
+      }
+
+      /* .v-row span {
+        width: 50%;
+      } */
+
+      /* .label-flea {
+        display: inline-block;
+      } */
+
+      .elapsed-note {
+        font-size: 12px;
+        font-weight: bold;
+        color: #d9534f;
+        margin: 0 0 8px 0;
+        padding-left: 5px;
+        border-left: 3px solid #d9534f;
+      }
+
+      .del-circle-x {
+        color: var(--danger);
+        cursor: pointer;
+        margin-left: 6px;
+        font-size: 1.1em;
+      }
+
+      /* スタンプの基本スタイルをこれらを利用するように変更 */
+      .status-stamp {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 10;
+        padding: 3px 10px;
+        /* 変数が無い場合は元の danger 色を使う */
+        border: 3px double var(--st-color, var(--danger));
+        color: var(--st-color, var(--danger));
+        background: var(--st-bg, rgba(255, 255, 255, 0.9));
+        font-weight: bold;
+        font-size: 14px;
+        transform: rotate(-10deg);
+        border-radius: 8px;
+        transition: all 0.3s;
+      }
+
+      /* --- モーダル共通 --- */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+      }
+
+      #modal-content {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        width: 95%;
+        max-width: 480px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .modal-header {
+        font-weight: bold;
+        font-size: 18px;
+        border-bottom: 2px solid var(--accent);
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+      }
+
+      /* 基本情報モーダル用タブ */
+      .modal-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 15px;
+        background: #eee;
+        padding: 4px;
+        border-radius: 8px;
+      }
+
+      .modal-tab-btn {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: bold;
+        border-radius: 6px;
+        background: #ddd;
+        color: #777;
+        transition: all 0.2s;
+      }
+
+      .modal-tab-btn.active {
+        background: var(--accent);
+        color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .input-set {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .input-set label {
+        font-size: 13px;
+        font-weight: bold;
+        color: #555;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+
+      .modal-footer {
+        margin-top: 25px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .modal-footer button {
+        flex: 1;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .btn-cancel {
+        background: #eee;
+      }
+
+      .btn-add {
+        background: var(--accent);
+        color: white;
+      }
+
+      .btn-danger {
+        background: #fff;
+        color: var(--danger);
+        border: 1px solid var(--danger) !important;
+        margin-top: 20px;
+        padding: 8px;
+        font-size: 13px;
+        width: 100%;
+        cursor: pointer;
+      }
+
+      /* パターンメニュー (GG28から移植) */
+      .pattern-row {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        position: relative;
+      }
+
+      .pattern-area {
+        position: relative;
+        flex: 1;
+      }
+
+      #confirm_pattern_btn {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        padding: 0 15px;
+        background: #ff9800;
+        color: white;
+        border: none;
+        border-radius: 0 8px 8px 0;
+        cursor: pointer;
+        white-space: nowrap;
+        z-index: 5;
+      }
+
+      .menu-root {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 100%;
+        background: #fff;
+        border: 1px solid #ccc;
+        z-index: 100;
+        min-width: 180px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+      }
+
+      .menu-root.active {
+        display: block;
+      }
+
+      .menu-item {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .menu-item:hover {
+        background: #f0f0f0;
+      }
+
+      .submenu {
+        display: none;
+        position: absolute;
+        left: 100%;
+        top: -1px;
+        background: #fff;
+        border: 1px solid #ccc;
+        min-width: 150px;
+        list-style: none;
+        padding: 0;
+        border-radius: 4px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .menu-item:hover .submenu {
+        display: block;
+      }
+
+      .submenu li {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .submenu li:hover {
+        background: #e0f0ff;
+      }
+
+      #chart_wrapper {
+        display: none;
+        margin-top: 15px;
+        background: #fff;
+        padding: 10px;
+        border: 1px solid #eee;
+        border-radius: 6px;
+      }
+
+      @media (max-width: 600px) {
+        section {
+          margin-bottom: 10px;
+        }
+
+        .basic-info-display {
+          display: flex;
+          flex-direction: column;
+          gap: 0px;
+        }
+
+        /* 【追加】要素をフラットにして order を有効にする */
+        .main-profile-column,
+        .top-info,
+        .top-switch {
+          display: contents;
+        }
+
+        /* 並び順の指定 */
+        .name-row-mobile {
+          order: 1;
+        }
+
+        .top-tabs-group {
+          order: 2;
+          width: 100%;
+          margin: 10px 0;
+          /* 名前と写真の間に余白 */
+        }
+
+        .photo-area {
+          order: 3;
+          width: 100%;
+          height: 280px;
+          margin-bottom: 15px;
+        }
+
+        .slide-container {
+          order: 4;
+        }
+
+        /* PC用の編集ボタンは隠す（名前横の✎ボタンがあるため） */
+        .top-switch .edit-trigger {
+          display: none;
+        }
+
+        .top-tabs-group {
+          width: 100%;
+          min-width: 0;
+        }
+
+        .top-tab {
+          padding: 8px 0;
+        }
+
+        .flex-container {
+          gap: 0px;
+        }
+
+        .edit-trigger-mobile {
+          display: inline-block;
+        }
+
+        .summary-badges {
+          gap: 10px;
+        }
+
+        .badge-item {
+          padding: 10px;
+        }
+      }
+
+      /* グラフモーダル専用のスタイル（幅広にする） */
+      .modal-content-graph {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        width: 95%;
+        max-width: 800px;
+        /* グラフは見やすいように幅広に */
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      /* モバイル調整 */
+      @media (max-width: 600px) {
+        .modal-content-graph {
+          width: 98%;
+          padding: 15px;
+        }
+      }
+
+      /* スライダーの見た目調整 */
+      input[type="range"] {
+        appearance: none;
+        /* 標準プロパティ（警告を消すために必要） */
+        -webkit-appearance: none;
+        /* WebKitブラウザ用（実際の動作に必要） */
+        /* 標準スタイルを消す */
+        width: 100%;
+        height: 8px;
+        background: #ddd;
+        border-radius: 5px;
+        outline: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--accent);
+        /* テーマカラー(オレンジ) */
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="sticky_name_bar" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
+      <div class="sticky-inner">
+        <div class="sticky-name-box"><span class="name-text">---</span></div>
+      </div>
+    </div>
+    <nav class="nav-bar" id="main_nav">
+      <button class="back-btn" onclick="saveAndBack()">← 一覧へ</button>
+      <a href="#vaccine">ワクチン</a>
+      <a href="#flea">ノミ駆除</a>
+      <a href="#weight-history">体重</a>
+    </nav>
+
+    <div class="container">
+      <section id="top">
+        <div class="basic-info-display">
+          <div class="main-profile-column">
+            <div class="name-row-mobile">
+              <div id="disp_name" class="cat-name-display">---</div>
+              <button class="edit-trigger edit-trigger-mobile" onclick="openBasicModal()">✎ 編集</button>
+            </div>
+            <div
+              class="photo-area"
+              id="photo_drop_zone"
+              onclick="document.getElementById('photo_input').click()"
+              title="写真をドラッグ＆ドロップまたはクリック"
+            >
+              <div id="status_stamp" class="status-stamp">保護中</div>
+              <div class="photo-placeholder" id="photo_placeholder">写真をドラッグ＆ドロップ<br />またはクリック</div>
+              <img id="cat_photo_img" src="" style="display: none" />
+              <button
+                class="photo-del-btn"
+                id="photo_del_btn"
+                onclick="
+                  event.stopPropagation();
+                  deletePhoto();
+                "
+              >
+                ⓧ
+              </button>
+              <input
+                type="file"
+                id="photo_input"
+                accept="image/*"
+                style="display: none"
+                onchange="handleImageSelect(event)"
+              />
+            </div>
+          </div>
+
+          <div class="top-info">
+            <div class="top-switch">
+              <div class="top-tabs-group">
+                <button type="button" class="top-tab is-active" data-top-tab="0">基本情報</button>
+                <button type="button" class="top-tab" data-top-tab="1">詳細・経緯</button>
+              </div>
+              <button class="edit-trigger" onclick="openBasicModal()">✎ 編集</button>
+            </div>
+
+            <div class="slide-container">
+              <div class="slide-pages" id="top_pages" data-page="0">
+                <div class="slide-page">
+                  <div class="summary-badges">
+                    <div class="badge-item">
+                      <span class="badge-label">性別</span><span class="badge-val" id="disp_gender">---</span>
+                    </div>
+                    <div class="badge-item">
+                      <span class="badge-label">生年月日 / <span id="summary_birth_date">---</span></span>
+                      <span class="badge-val" id="summary_age">---</span>
+                    </div>
+                    <div class="badge-item" style="grid-column: span 2">
+                      <span class="badge-label">FF検査結果</span>
+                      <span class="badge-val" id="summary_ff">未検査</span>
+                    </div>
+                    <div class="badge-item" style="grid-column: span 2">
+                      <span class="badge-label">最終 医療ケア</span>
+                      <div class="badge-sub-text">
+                        <div>ワクチン: <span id="summary_vaccine">未実施</span></div>
+                        <div>ノミ取り: <span id="summary_flea">未実施</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="slide-page">
+                  <div class="info-grid">
+                    <div><span class="label">模様</span><span class="val" id="disp_pattern">---</span></div>
+                    <div><span class="label">特徴</span><span class="val" id="disp_features">---</span></div>
+                    <div><span class="label">出身地</span><span class="val" id="disp_origin">---</span></div>
+                    <div><span class="label">MC番号</span><span class="val" id="disp_mc">---</span></div>
+                  </div>
+                  <div style="margin-top: 15px">
+                    <span class="label">保護の経緯・ストーリー</span>
+                    <textarea
+                      id="cat_rescue_note"
+                      style="height: 100px"
+                      placeholder="経緯を入力..."
+                      oninput="saveAllData()"
+                    ></textarea>
+                  </div>
+                  <div class="foster-info-area">
+                    <span class="label">卒業先・里親</span>
+                    <span
+                      class="val"
+                      id="disp_foster_summary"
+                      style="font-size: 16px; font-weight: bold; color: var(--accent)"
+                      >(未登録)</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="flex-container">
+        <section id="ff-test" class="flex-box">
+          <div class="h2-row">
+            <h2>FF(エイズ白血病)検査</h2>
+            <button class="edit-trigger" onclick="openEditModal('ff')">✎ 編集</button>
+          </div>
+          <div class="log-box" data-log="ff">
+            <div class="log-summary">
+              <div class="v-row">最新: <span data-last>---</span><span class="del-circle-x" data-del-last>ⓧ</span></div>
+              <div class="v-row">前回: <span data-prev>---</span><span class="del-circle-x" data-del-prev>ⓧ</span></div>
+            </div>
+            <details>
+              <summary>もっと前の履歴</summary>
+              <ul style="padding-left: 20px" data-history></ul>
+            </details>
+          </div>
+        </section>
+
+        <section class="flex-box" data-log="surgery">
+          <div class="h2-row">
+            <h2>不妊去勢手術</h2>
+            <button class="edit-trigger" onclick="openEditModal('surgery')">✎ 編集</button>
+          </div>
+          <div class="log-box" data-log="surgery">
+            <div class="event-summary">
+              <div>日付：<span data-res-date>---</span></div>
+              <div>年齢：<span data-res-age>---</span></div>
+              <div>体重：<span data-res-weight>---</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="flex-container">
+        <section id="vaccine" class="flex-box">
+          <div class="h2-row">
+            <h2>ワクチン接種履歴</h2>
+            <button class="edit-trigger" onclick="openEditModal('vaccine')">✎ 編集</button>
+          </div>
+          <div class="log-box" data-log="vaccine">
+            <div class="elapsed-note" id="vaccine_elapsed"></div>
+            <div class="log-summary">
+              <div class="v-row">最新: <span data-last>---</span><span class="del-circle-x" data-del-last>ⓧ</span></div>
+              <div class="v-row">前回: <span data-prev>---</span><span class="del-circle-x" data-del-prev>ⓧ</span></div>
+            </div>
+            <details>
+              <summary>もっと前の履歴</summary>
+              <ul style="padding-left: 20px" data-history></ul>
+            </details>
+          </div>
+        </section>
+
+        <section id="flea" class="flex-box">
+          <div class="h2-row">
+            <h2>ノミ・寄生虫駆除</h2>
+            <button class="edit-trigger" onclick="openEditModal('flea')">✎ 編集</button>
+          </div>
+          <div class="log-box" data-log="flea">
+            <div class="elapsed-note" id="flea_elapsed"></div>
+            <div class="log-summary">
+              <div class="v-row">最新: <span data-last>---</span><span class="del-circle-x" data-del-last>ⓧ</span></div>
+              <div class="v-row">前回: <span data-prev>---</span><span class="del-circle-x" data-del-prev>ⓧ</span></div>
+            </div>
+            <details>
+              <summary>もっと前の履歴</summary>
+              <ul style="padding-left: 20px" data-history></ul>
+            </details>
+          </div>
+        </section>
+      </div>
+
+      <section id="weight-history">
+        <div class="h2-row">
+          <h2>体重推移</h2>
+          <button class="edit-trigger" onclick="openEditModal('weight')">✎ 記録</button>
+        </div>
+        <div class="log-box" data-log="weight">
+          <div class="log-summary">
+            <div class="v-row">最新: <span data-last>---</span><span class="del-circle-x" data-del-last>ⓧ</span></div>
+            <div class="v-row">前回: <span data-prev>---</span><span class="del-circle-x" data-del-prev>ⓧ</span></div>
+          </div>
+          <details>
+            <summary>もっと前の履歴</summary>
+            <ul style="padding-left: 20px" data-history></ul>
+          </details>
+        </div>
+
+        <button
+          onclick="openGraphModal()"
+          style="
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            cursor: pointer;
+            background: #fff;
+            border: 2px solid #888;
+            color: #555;
+            border-radius: 6px;
+            font-weight: bold;
+          "
+        >
+          📊 グラフを表示する
+        </button>
+      </section>
+
+      <section id="medical-notes">
+        <h2>病歴・医療メモ</h2>
+        <textarea
+          id="cat_notes"
+          style="height: 100px; margin-top: 10px"
+          placeholder="・メモを入力..."
+          oninput="saveAllData()"
+          autocomplete="off"
+        ></textarea>
+      </section>
+    </div>
+
+    <div id="basic-modal-overlay" class="modal-overlay">
+      <div id="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">情報を編集</div>
+        <div class="modal-tabs">
+          <button class="modal-tab-btn active" id="modal_tab_0" onclick="switchModalSlide(0)">① 基本情報</button>
+          <button class="modal-tab-btn" id="modal_tab_1" onclick="switchModalSlide(1)">② 詳細・他</button>
+        </div>
+        <div class="slide-container">
+          <div class="slide-pages" id="modal_slide_pages" data-page="0">
+            <div class="slide-page">
+              <div class="modal-input-group">
+                <div class="input-set"><label>名前</label><input type="text" id="cat_name_input" /></div>
+                <div class="input-set">
+                  <label>ステータス</label>
+                  <select id="cat_status_input" onchange="toggleStatusDetail()">
+                    <option>保護中</option>
+                    <option>預かり中</option>
+                    <option>治療中</option>
+                    <option>入院中</option>
+                    <option>Trial予定</option>
+                    <option>Trial中</option>
+                    <option>卒業</option>
+                    <option>卒業予定</option>
+                    <option>永眠</option>
+                  </select>
+                  <input
+                    type="text"
+                    id="status_detail_input"
+                    placeholder="例：〇〇さん宅"
+                    style="display: none; margin-top: 5px; width: 100%"
+                  />
+                </div>
+                <div class="input-set">
+                  <label>性別</label>
+                  <select id="cat_gender_input">
+                    <option value="">未設定</option>
+                    <option>オス</option>
+                    <option>オス(去勢済)</option>
+                    <option>メス</option>
+                    <option>メス(避妊済)</option>
+                    <option>不明</option>
+                  </select>
+                </div>
+                <div class="input-set">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px">
+                    <label style="margin: 0; white-space: nowrap">生年月日</label>
+                    <select
+                      id="age_mode_input"
+                      onchange="previewAgeInModal()"
+                      style="font-size: 11px; height: 24px; padding: 0 4px; width: auto; flex: 0 1 auto"
+                    >
+                      <option value="estimate">推定（週/月単位のズレ）</option>
+                      <option value="exact">確定（日付まで判明）</option>
+                      <option value="rough">概ね（年単位のズレ）</option>
+                    </select>
+                    <div id="modal_age_preview" style="font-size: 11px; color: #666; white-space: nowrap; flex: 1">
+                      : ---
+                    </div>
+                  </div>
+                  <input
+                    type="text"
+                    id="cat_birth_input"
+                    class="date-input-field"
+                    placeholder="日付を選択"
+                    onfocus="
+                      this.type = 'date';
+                      this.showPicker();
+                    "
+                    onblur="if (!this.value) this.type = 'text';"
+                    onchange="previewAgeInModal()"
+                    autocomplete="off"
+                  />
+                </div>
+                <button class="btn-danger" onclick="deleteCurrentCat()">この猫のデータを完全に削除する</button>
+              </div>
+            </div>
+            <div class="slide-page">
+              <div class="modal-input-group">
+                <div class="input-set">
+                  <label>模様</label>
+                  <div class="pattern-row">
+                    <div class="pattern-area" id="pattern_container">
+                      <input
+                        type="text"
+                        id="cat_pattern_input"
+                        placeholder="選択または手入力"
+                        autocomplete="off"
+                        oninput="showPatternBtn()"
+                        onkeydown="handlePatternKey(event)"
+                      />
+                      <ul class="menu-root" id="modal_pattern_menu"></ul>
+                      <button id="confirm_pattern_btn" type="button" onclick="confirmPattern()">決定</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="input-set">
+                  <label>特徴</label>
+                  <input type="text" id="cat_features_input" placeholder="例：しっぽが短い、長毛など" />
+                </div>
+                <div class="input-set">
+                  <label>出身地</label>
+                  <input type="text" id="cat_origin_input" placeholder="例：和歌山市、〇〇保護団体など" />
+                </div>
+                <div class="input-set">
+                  <label>MC番号</label>
+                  <input type="text" id="cat_mc_input" placeholder="例：3921xxxxxxxxxxx" />
+                </div>
+
+                <div class="input-set">
+                  <label>卒業先・里親名</label>
+                  <input type="text" id="cat_foster_input" placeholder="里親様の氏名など" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeBasicModal()">キャンセル</button>
+          <button class="btn-add" onclick="submitBasicInfo()">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay">
+      <div id="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header" id="modal-title">編集</div>
+        <div class="modal-input-group">
+          <div class="input-set">
+            <label>日付</label>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <input
+                type="text"
+                id="modal_date"
+                class="date-input-field"
+                placeholder="日付を選択してください"
+                onfocus="
+                  this.type = 'date';
+                  this.showPicker();
+                "
+                onblur="if (!this.value) this.type = 'text';"
+                autocomplete="off"
+                style="flex: 1"
+              />
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 4px;
+                  white-space: nowrap;
+                  cursor: pointer;
+                  font-size: 14px;
+                  font-weight: bold;
+                  color: #555;
+                "
+              >
+                <input
+                  type="checkbox"
+                  id="modal_date_unknown"
+                  style="width: 18px; height: 18px"
+                  onchange="toggleDateInput(this.checked)"
+                />
+                不明
+              </label>
+            </div>
+          </div>
+          <div id="modal_select_area"></div>
+          <div class="input-set">
+            <label>体重(kg)</label>
+            <div class="modal-row" style="display: flex; align-items: center">
+              <div class="weight-input-wrapper" style="flex: 1; display: flex; align-items: center; gap: 5px">
+                <input type="text" id="modal_weight" placeholder="任意" autocomplete="off" />
+                <span style="font-size: 14px; font-weight: bold; color: #555">kg</span>
+              </div>
+            </div>
+          </div>
+          <div id="modal_hint" style="font-size: 11px; color: #aaa; font-style: italic; margin-top: 5px"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeEditModal()">キャンセル</button>
+          <button class="btn-add" id="modal_submit_btn" onclick="submitModalData()">追加・決定</button>
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" id="birth_val_hidden" />
+
+    <div id="graph-modal-overlay" class="modal-overlay">
+      <div id="graph-modal-content" class="modal-content-graph" onclick="event.stopPropagation()">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+          "
+        >
+          <h3 style="margin: 0">体重推移グラフ</h3>
+          <button onclick="closeGraphModal()" style="background: none; border: none; font-size: 24px; cursor: pointer">
+            ×
+          </button>
+        </div>
+
+        <div
+          id="chart_controls"
+          style="
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px">
+            <span style="font-size: 13px; font-weight: bold; color: #555; white-space: nowrap">最近:</span>
+            <input
+              type="range"
+              id="timeSlider"
+              style="flex: 1; cursor: pointer"
+              oninput="onSliderChange(this.value)"
+            /><span style="font-size: 13px; font-weight: bold; color: #555; white-space: nowrap">:最終</span>
+          </div>
+
+          <div
+            style="
+              font-size: 13px;
+              font-weight: bold;
+              color: #555;
+              text-align: center;
+              border-top: 1px solid #eee;
+              padding-top: 5px;
+            "
+          >
+            表示期間：<span id="range_label" style="color: #ff9800">全期間</span>
+          </div>
+        </div>
+
+        <div style="position: relative; height: 50vh; min-height: 300px; width: 100%">
+          <canvas id="weightChart"></canvas>
+        </div>
+
+        <button
+          onclick="closeGraphModal()"
+          style="
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px;
+            background: #eee;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+          "
+        >
+          閉じる
+        </button>
+      </div>
+    </div>
+
+    <!-- <script src="cat_list_file/script/28+33 G5.js"></script> -->
+    <!-- <script src="cat_list_file/script/G6.js"></script> -->
+    <!-- <script src="cat_list_file/script/G7’.js"></script> -->
+    <script src="cat_list_file/script/G8.js"></script>
+    <!-- <script src="cat_list_file/script/ff-theme-manager.js"></script> -->
+    <script src="cat_list_file/script/input-settings.js"></script>
+  </body>
+</html>
