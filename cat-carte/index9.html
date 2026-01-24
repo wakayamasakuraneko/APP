@@ -642,7 +642,7 @@
           const vacText = formatDateShort(c.last_vaccine) + (vAlert ? ' <span class="warn-icon">⚠</span>' : "");
           const fleaText = formatDateShort(c.last_flea) + (fAlert ? ' <span class="warn-icon">⚠</span>' : "");
           const row = document.createElement("tr");
-          row.onclick = () => (window.location.href = `28+33 G5.html?id=${c.id}`);
+          row.onclick = () => (window.location.href = `med-record.html?id=${c.id}`);
           row.addEventListener("contextmenu", (e) => {
             e.preventDefault(); // ブラウザ標準メニューを出さない
             e.stopPropagation(); // window clickで即閉じないように
@@ -686,7 +686,7 @@
       // ※ openDetail はあなたの環境に合わせて別ファイルか既存実装を使ってください
       function openDetail(mode) {
         if (mode === "new") {
-          window.location.href = `28+33 G5.html?id=new`;
+          window.location.href = `med-record.html?id=new`;
         }
       }
 
