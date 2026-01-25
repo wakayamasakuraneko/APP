@@ -2,11 +2,12 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <title>index9</title>
-    <!-- FF結果とステータス絞り込みを追加。 -->
-    <!-- ワクチン、ノミ取りの期限切れ機能を追加 -->
+    <title>猫一覧</title>
+    <!-- <link rel="icon" href="check-Blue.png" /> -->
+    <link rel="icon" href="check-Orange.png" />
+    <!-- 掲載用は↑Orange -->
+    <!-- index9に相当　thの並べ替え機能付き -->
     <!-- https://chatgpt.com/c/69741008-6324-8322-8a29-d29390754100 -->
-    <!-- 削除機能を追加 -->
     <link rel="stylesheet" href="../cat-carte-app/label-color.css" />
     <link rel="stylesheet" href="../cat-carte-app/status-color.css" />
 
@@ -115,15 +116,23 @@
         background-color: #eee;
         z-index: 20;
         border-bottom: 2px solid #ccc;
+        border-right: 1px solid #bbb;
         padding: 8px;
         text-align: center;
         font-size: 12px;
+        user-select: none;
+      }
+      /* 一番右だけ線を消す */
+      thead th:last-child {
+        border-right: none;
       }
 
+      /* th内の並びを整える（中央寄せ＋高さ安定） */
       .th-content-wrapper {
         display: flex;
         align-items: center;
-        gap: 4px;
+        justify-content: center;
+        gap: 6px;
       }
 
       /* 2列目（状態）を中央寄せ */
@@ -131,20 +140,47 @@
         text-align: center;
       }
 
+      /* sortable-label だけをボタンっぽくする（th自体は触らない） */
       .sortable-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 5px 10px; /* ←少し大きく */
+        border-radius: 7px;
         cursor: pointer;
-        color: #007bff;
+        font-size: 12px; /* ←小ささ対策 */
+        font-weight: 600;
         white-space: nowrap;
-        flex-grow: 1;
+      }
+
+      /* th.sortable は display を変えない（ここ重要） */
+      th.sortable {
+        cursor: pointer; /* 押せる感だけ */
       }
 
       .filter-trigger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 7px;
+        border-radius: 7px;
         cursor: pointer;
-        padding: 2px 4px;
-        border-radius: 3px;
-        background: #ddd;
-        font-size: 10px;
-        user-select: none;
+        border: 1px solid #cfcfcf;
+        background: #f7f7f7;
+      }
+
+      /* ホバー統一 */
+      .sortable-label:hover,
+      th.sortable:hover,
+      .filter-trigger:hover {
+        background: #e9f2ff;
+      }
+
+      /* activeで沈むのは th ではなく span にだけ */
+      .sortable-label:active,
+      .filter-trigger:active {
+        transform: translateY(1px);
       }
 
       /* ドロップダウンメニュー (Fixed配置) */
@@ -233,12 +269,17 @@
       .thumb-cell {
         width: 50px;
         text-align: center;
+        padding: 4px;
       }
       .cat-thumb {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         border-radius: 20%;
         object-fit: cover;
+        background-color: #eee;
+        border: 1px solid #ddd;
+        display: block;
+        margin: auto;
       }
 
       /* ===== 状態バッジ（色は status-color.css 側の st-* が担当） ===== */
@@ -404,8 +445,8 @@
                       <label><input type="checkbox" value="Trial中" checked onchange="updateView()" /> Trial中</label>
                       <label><input type="checkbox" value="卒業" checked onchange="updateView()" /> 卒業</label>
                       <label><input type="checkbox" value="卒業予定" checked onchange="updateView()" /> 卒業予定</label>
-                      <label><input type="checkbox" value="永眠" checked onchange="updateView()" /> 永眠</label>
                       <label><input type="checkbox" value="未設定" checked onchange="updateView()" /> 未設定</label>
+                      <label><input type="checkbox" value="永眠" onchange="updateView()" /> 永眠</label>
                     </div>
                   </div>
                 </div>
@@ -477,8 +518,8 @@
                 </div>
               </th>
 
-              <th>出身地</th>
-              <th>卒業先</th>
+              <th class="sortable" onclick="sortData('origin')">出身地 ↕</th>
+              <th class="sortable" onclick="sortData('foster')">卒業先 ↕</th>
               <th class="sortable" onclick="sortData('last_vaccine')">最終ワクチン ↕</th>
               <th class="sortable" onclick="sortData('last_flea')">最新ノミ取り ↕</th>
             </tr>
@@ -642,6 +683,7 @@
           const vacText = formatDateShort(c.last_vaccine) + (vAlert ? ' <span class="warn-icon">⚠</span>' : "");
           const fleaText = formatDateShort(c.last_flea) + (fAlert ? ' <span class="warn-icon">⚠</span>' : "");
           const row = document.createElement("tr");
+          const photoTag = c.photo ? `<img src="${c.photo}" class="cat-thumb">` : `<div class="cat-thumb"></div>`;
           row.onclick = () => (window.location.href = `med-record.html?id=${c.id}`);
           row.addEventListener("contextmenu", (e) => {
             e.preventDefault(); // ブラウザ標準メニューを出さない
@@ -650,7 +692,8 @@
           });
 
           row.innerHTML = `
-            <td class="thumb-cell">${c.photo ? `<img src="${c.photo}" class="cat-thumb">` : ""}</td>
+            <td class="thumb-cell">${photoTag}</td>
+
             <td><span class="status-badge ${stClass}">${c.status || "在留"}</span></td>
             <td><strong>${c.name || "名前なし"}</strong></td>
             <td>${c.gender || "---"}</td>
@@ -670,14 +713,27 @@
       }
 
       function sortData(key) {
-        if (sortConfig.key === key) sortConfig.direction *= -1;
-        else {
+        if (sortConfig.key === key) {
+          sortConfig.direction *= -1;
+        } else {
           sortConfig.key = key;
           sortConfig.direction = 1;
         }
-        cats.sort(
-          (a, b) => (a[key] || "").toString().localeCompare((b[key] || "").toString(), "ja") * sortConfig.direction,
-        );
+
+        cats.sort((a, b) => {
+          // ★ index7 と同じ：年齢は birthDate で比較
+          if (key === "age_val") {
+            const da = a.birthDate || "9999-99-99";
+            const db = b.birthDate || "9999-99-99";
+
+            // 文字列比較でOK（YYYY-MM-DD）
+            return da.localeCompare(db) * -1 * sortConfig.direction;
+          }
+
+          // それ以外は通常の文字列ソート
+          return (a[key] || "").toString().localeCompare((b[key] || "").toString(), "ja") * sortConfig.direction;
+        });
+
         updateView();
       }
 
