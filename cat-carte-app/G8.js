@@ -394,7 +394,7 @@ async function saveAndBack() {
   } else {
     await saveAllData();
   }
-  window.location.href = "index9.html";
+  window.location.href = "List.html";
 }
 
 // ==========================================
@@ -465,7 +465,7 @@ async function submitBasicInfo() {
 async function deleteCurrentCat() {
   if (!confirm("全データを削除します。よろしいですか?")) return;
   await deleteDB(currentCatId);
-  window.location.href = "index9.html";
+  window.location.href = "List.html";
 }
 
 // ==========================================
@@ -1091,3 +1091,4 @@ function updateAgeFromBirth(val) {
   }
   if (ageCell) ageCell.textContent = calcAgeTextAt(val, new Date().toISOString().split("T")[0], ageMode);
 }
+
