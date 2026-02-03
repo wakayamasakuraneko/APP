@@ -115,7 +115,7 @@ function applyStatusTheme(statusText) {
   else if (base.includes("永眠")) stamp.classList.add("st-death");
   else if (base.includes("Trial")) stamp.classList.add("st-trial");
   else if (base.includes("治療") || base.includes("入院")) stamp.classList.add("st-medical");
-  else stamp.classList.add("st-stay"); // 保護中/預かり中など
+  else stamp.classList.add("st-stay"); // 保護中/預け中など
 }
 
 // ==========================================
@@ -150,7 +150,7 @@ function toggleStatusDetail() {
   const status = document.getElementById("cat_status_input").value;
   const detailInput = document.getElementById("status_detail_input");
 
-  if (status === "預かり中" || status === "Trial中") {
+  if (status === "預け中" || status === "Trial中") {
     detailInput.style.display = "block";
   } else {
     detailInput.style.display = "none";
@@ -1091,4 +1091,3 @@ function updateAgeFromBirth(val) {
   }
   if (ageCell) ageCell.textContent = calcAgeTextAt(val, new Date().toISOString().split("T")[0], ageMode);
 }
-
