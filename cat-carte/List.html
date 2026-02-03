@@ -3,368 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <title>猫一覧</title>
-    <!-- <link rel="icon" href="check-Blue.png" /> -->
     <link rel="icon" href="check-Orange.png" />
-    <!-- 掲載用は↑Orange -->
-    <!-- index9に相当　thの並べ替え機能付き -->
-    <!-- https://chatgpt.com/c/69741008-6324-8322-8a29-d29390754100 -->
+    <!-- <link rel="icon" href="favicon2.png" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../cat-carte-app/label-color.css" />
     <link rel="stylesheet" href="../cat-carte-app/status-color.css" />
-
-    <style>
-      body {
-        font-family: sans-serif;
-        margin: 10px;
-        background-color: #f4f4f4;
-        color: #333;
-      }
-
-      .container {
-        background: white;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        max-width: 1200px;
-        margin: auto;
-      }
-
-      .header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-        height: 40px;
-      }
-
-      h2 {
-        font-size: 1.2rem;
-        margin: 0;
-      }
-
-      .btn-main {
-        padding: 6px 12px;
-        cursor: pointer;
-        background: #ff9800;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-weight: bold;
-        font-size: 0.9rem;
-      }
-
-      /* 検索パネル */
-      .controls-wrapper {
-        margin-bottom: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background: #f9f9f9;
-        overflow: hidden;
-      }
-
-      .controls-summary {
-        padding: 8px 15px;
-        background: #eee;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: bold;
-        display: flex;
-        justify-content: space-between;
-      }
-
-      .controls-content {
-        padding: 15px;
-        display: none;
-      }
-
-      .controls-content.active {
-        display: block;
-      }
-
-      .filter-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-        font-size: 13px;
-        margin-bottom: 10px;
-      }
-
-      .search-box {
-        padding: 5px 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        width: 250px;
-      }
-
-      /* テーブル関連 */
-      .table-wrapper {
-        max-height: 70vh;
-        overflow-y: auto;
-        border: 1px solid #ccc;
-        background: white;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 1000px;
-      }
-
-      thead th {
-        position: sticky;
-        top: 0;
-        background-color: #eee;
-        z-index: 20;
-        border-bottom: 2px solid #ccc;
-        border-right: 1px solid #bbb;
-        padding: 8px;
-        text-align: center;
-        font-size: 12px;
-        user-select: none;
-      }
-      /* 一番右だけ線を消す */
-      thead th:last-child {
-        border-right: none;
-      }
-
-      /* th内の並びを整える（中央寄せ＋高さ安定） */
-      .th-content-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-      }
-
-      /* 2列目（状態）を中央寄せ */
-      table td:nth-child(2) {
-        text-align: center;
-      }
-
-      /* sortable-label だけをボタンっぽくする（th自体は触らない） */
-      .sortable-label {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 5px 10px; /* ←少し大きく */
-        border-radius: 7px;
-        cursor: pointer;
-        font-size: 12px; /* ←小ささ対策 */
-        font-weight: 600;
-        white-space: nowrap;
-      }
-
-      /* th.sortable は display を変えない（ここ重要） */
-      th.sortable {
-        cursor: pointer; /* 押せる感だけ */
-      }
-
-      .filter-trigger {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 4px 7px;
-        border-radius: 7px;
-        cursor: pointer;
-        border: 1px solid #cfcfcf;
-        background: #f7f7f7;
-      }
-
-      /* ホバー統一 */
-      .sortable-label:hover,
-      th.sortable:hover,
-      .filter-trigger:hover {
-        background: #e9f2ff;
-      }
-
-      /* activeで沈むのは th ではなく span にだけ */
-      .sortable-label:active,
-      .filter-trigger:active {
-        transform: translateY(1px);
-      }
-
-      /* ドロップダウンメニュー (Fixed配置) */
-      .filter-dropdown {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        background: white;
-        border: 1px solid #ccc;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        min-width: 180px;
-        padding: 12px;
-        border-radius: 6px;
-        font-weight: normal;
-      }
-
-      .filter-dropdown.active {
-        display: block;
-      }
-
-      .dropdown-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-      }
-
-      .close-btn {
-        cursor: pointer;
-        font-size: 18px;
-        color: #999;
-        line-height: 1;
-      }
-
-      .close-btn:hover {
-        color: #333;
-      }
-
-      .dropdown-btns {
-        display: flex;
-        gap: 5px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid #eee;
-      }
-
-      .btn-sm {
-        padding: 3px 8px;
-        cursor: pointer;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        font-size: 11px;
-      }
-
-      /* 2列グリッド表示 */
-      .gender-grid,
-      .ff-grid,
-      .status-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-top: 10px;
-      }
-
-      .gender-grid label,
-      .ff-grid label,
-      .status-grid label {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 13px;
-        cursor: pointer;
-      }
-
-      /* 行 */
-      td {
-        border: 1px solid #ccc;
-        padding: 8px;
-        font-size: 13px;
-      }
-      tr:hover {
-        background-color: #fff9f0;
-        cursor: pointer;
-      }
-      .thumb-cell {
-        width: 50px;
-        text-align: center;
-        padding: 4px;
-      }
-      .cat-thumb {
-        width: 50px;
-        height: 50px;
-        border-radius: 20%;
-        object-fit: cover;
-        background-color: #eee;
-        border: 1px solid #ddd;
-        display: block;
-        margin: auto;
-      }
-
-      /* ===== 状態バッジ（色は status-color.css 側の st-* が担当） ===== */
-      .status-badge {
-        display: inline-block;
-        padding: 2px 6px;
-        border-radius: 10px;
-        font-size: 11px;
-        font-weight: bold;
-        border: 2px solid var(--st-color, #999);
-        color: var(--st-color, #333);
-        background: var(--st-bg, #eee);
-      }
-
-      /* 期限警告：赤字 */
-      .alert-text {
-        color: #d32f2f;
-        font-weight: bold;
-      }
-
-      /* 期間：カード＆数値入力 */
-      .filter-card {
-        background: #fff;
-        padding: 5px 10px;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-      .input-num {
-        width: 35px;
-        padding: 2px;
-        text-align: center;
-      }
-
-      /* ⚠ 点滅 */
-      @keyframes blinkWarn {
-        0%,
-        50% {
-          opacity: 1;
-        }
-        51%,
-        100% {
-          opacity: 0.25;
-        }
-      }
-      .warn-icon {
-        display: inline-block;
-        margin-left: 4px;
-        animation: blinkWarn 1s step-end infinite;
-      }
-
-      /* 右クリックメニュー */
-      .ctx-menu {
-        position: fixed;
-        z-index: 2000;
-        min-width: 180px;
-        background: #fff;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-        padding: 6px;
-      }
-      .ctx-item {
-        width: 100%;
-        text-align: left;
-        border: 0;
-        background: transparent;
-        padding: 8px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 13px;
-      }
-      .ctx-item:hover {
-        background: #f3f3f3;
-      }
-      .ctx-item.danger {
-        color: #d32f2f;
-        font-weight: bold;
-      }
-      .ctx-item.danger:hover {
-        background: #ffebee;
-      }
-    </style>
+    <!-- <link rel="stylesheet" href="../cat-carte-app/M-QGPT.css" /> -->
+    <link rel="stylesheet" href="../cat-carte-app/List-style.css" />
   </head>
 
   <body>
@@ -374,40 +19,57 @@
         <div>
           <span id="counter" style="margin-right: 15px; font-weight: bold">登録数: 0匹 (該当: 0件)</span>
           <button class="btn-main" onclick="openDetail('new')">＋ 新規登録</button>
+
+          <button
+            class="btn-main"
+            style="margin-left: 8px; background: #607d8b"
+            onclick="toggleDropdown(event, 'dataManagementMenu')"
+          >
+            データ ▾
+          </button>
+
+          <input
+            type="file"
+            id="dbImportFile"
+            accept="application/json"
+            style="display: none"
+            onchange="handleDBImport(event)"
+          />
         </div>
       </div>
 
-      <div class="controls-wrapper">
-        <div class="controls-summary" onclick="document.querySelector('.controls-content').classList.toggle('active')">
+      <div class="controls-wrapper pc-only">
+        <div class="controls-summary" onclick="toggleDropdown(event, 'searchPanel')">
           <span>🔍 検索・絞り込み条件（クリックで開閉）</span>
         </div>
-        <div class="controls-content">
-          <div class="filter-group">
-            <strong>検索：</strong>
-            <input
-              type="text"
-              id="searchKeyword"
-              class="search-box"
-              placeholder="名前、出身等で検索..."
-              oninput="updateView()"
-            />
-          </div>
+      </div>
 
-          <div class="filter-group">
-            <strong>期間：</strong>
+      <div class="mobile-action-bar sp-only">
+        <div class="action-chip search" onclick="toggleDropdown(event, 'searchPanel')">🔍 検索・設定</div>
 
-            <div class="filter-card">
-              ワクチン最終から
-              <input type="number" id="alert_vac_y" class="input-num" value="0" oninput="updateView()" /> 年
-              <input type="number" id="alert_vac_m" class="input-num" value="0" oninput="updateView()" /> ヶ月以上
-            </div>
-
-            <div class="filter-card">
-              ノミ取り最新から
-              <input type="number" id="alert_flea_m" class="input-num" value="0" oninput="updateView()" /> ヶ月以上
-            </div>
-          </div>
+        <!-- 状態：左=ソート / 右=フィルター(モーダル) -->
+        <div class="action-chip dual" onclick="sortData('status')">
+          <span class="dual-left">状態 ↕</span>
+          <span class="dual-right" onclick="toggleDropdown(event, 'statusDropdown')">▼</span>
         </div>
+
+        <div class="action-chip sort" onclick="sortData('name')">名前 ↕</div>
+        <div class="action-chip sort" onclick="sortData('age_val')">年齢 ↕</div>
+
+        <!-- 性別：左=ソート / 右=フィルター(モーダル) -->
+        <div class="action-chip dual" onclick="sortData('gender')">
+          <span class="dual-left">性別 ↕</span>
+          <span class="dual-right" onclick="toggleDropdown(event, 'genderDropdown')">▼</span>
+        </div>
+
+        <!-- FF：左=ソート / 右=フィルター(モーダル) -->
+        <div class="action-chip dual" onclick="sortData('ff_result')">
+          <span class="dual-left">FF ↕</span>
+          <span class="dual-right" onclick="toggleDropdown(event, 'ffDropdown')">▼</span>
+        </div>
+
+        <div class="action-chip sort" onclick="sortData('last_vaccine')">ワクチン ↕</div>
+        <div class="action-chip sort" onclick="sortData('last_flea')">ノミ取り ↕</div>
       </div>
 
       <div class="table-wrapper">
@@ -420,35 +82,6 @@
                 <div class="th-content-wrapper">
                   <span class="sortable-label" onclick="sortData('status')">状態 ↕</span>
                   <span class="filter-trigger" onclick="toggleDropdown(event, 'statusDropdown')">▼</span>
-
-                  <div id="statusDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
-                    <div class="dropdown-header">
-                      <strong>状態フィルター</strong>
-                      <span class="close-btn" onclick="closeDropdown('statusDropdown')">×</span>
-                    </div>
-
-                    <div class="dropdown-btns">
-                      <button class="btn-sm" onclick="toggleFilters('statusFilters', true)">全選択</button>
-                      <button class="btn-sm" style="background: #666" onclick="toggleFilters('statusFilters', false)">
-                        全解除
-                      </button>
-                    </div>
-
-                    <div id="statusFilters" class="status-grid">
-                      <label><input type="checkbox" value="保護中" checked onchange="updateView()" /> 保護中</label>
-                      <label><input type="checkbox" value="預かり中" checked onchange="updateView()" /> 預かり中</label>
-                      <label><input type="checkbox" value="治療中" checked onchange="updateView()" /> 治療中</label>
-                      <label><input type="checkbox" value="入院中" checked onchange="updateView()" /> 入院中</label>
-                      <label
-                        ><input type="checkbox" value="Trial予定" checked onchange="updateView()" /> Trial予定</label
-                      >
-                      <label><input type="checkbox" value="Trial中" checked onchange="updateView()" /> Trial中</label>
-                      <label><input type="checkbox" value="卒業" checked onchange="updateView()" /> 卒業</label>
-                      <label><input type="checkbox" value="卒業予定" checked onchange="updateView()" /> 卒業予定</label>
-                      <label><input type="checkbox" value="未設定" checked onchange="updateView()" /> 未設定</label>
-                      <label><input type="checkbox" value="永眠" onchange="updateView()" /> 永眠</label>
-                    </div>
-                  </div>
                 </div>
               </th>
 
@@ -458,32 +91,6 @@
                 <div class="th-content-wrapper">
                   <span class="sortable-label" onclick="sortData('gender')">性別 ↕</span>
                   <span class="filter-trigger" onclick="toggleDropdown(event, 'genderDropdown')">▼</span>
-
-                  <div id="genderDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
-                    <div class="dropdown-header">
-                      <strong>性別フィルター</strong>
-                      <span class="close-btn" onclick="closeDropdown('genderDropdown')">×</span>
-                    </div>
-
-                    <div class="dropdown-btns">
-                      <button class="btn-sm" onclick="toggleFilters('genderFilters', true)">全選択</button>
-                      <button class="btn-sm" style="background: #666" onclick="toggleFilters('genderFilters', false)">
-                        全解除
-                      </button>
-                    </div>
-
-                    <div id="genderFilters" class="gender-grid">
-                      <label><input type="checkbox" value="メス" checked onchange="updateView()" /> メス</label>
-                      <label><input type="checkbox" value="オス" checked onchange="updateView()" /> オス</label>
-                      <label
-                        ><input type="checkbox" value="メス(避妊済)" checked onchange="updateView()" /> 避妊済</label
-                      >
-                      <label
-                        ><input type="checkbox" value="オス(去勢済)" checked onchange="updateView()" /> 去勢済</label
-                      >
-                      <label><input type="checkbox" value="不明" checked onchange="updateView()" /> 不明</label>
-                    </div>
-                  </div>
                 </div>
               </th>
 
@@ -493,35 +100,13 @@
                 <div class="th-content-wrapper">
                   <span class="sortable-label" onclick="sortData('ff_result')">FF結果 ↕</span>
                   <span class="filter-trigger" onclick="toggleDropdown(event, 'ffDropdown')">▼</span>
-
-                  <div id="ffDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
-                    <div class="dropdown-header">
-                      <strong>FF結果フィルター</strong>
-                      <span class="close-btn" onclick="closeDropdown('ffDropdown')">×</span>
-                    </div>
-
-                    <div class="dropdown-btns">
-                      <button class="btn-sm" onclick="toggleFilters('ffFiltersHeader', true)">全選択</button>
-                      <button class="btn-sm" style="background: #666" onclick="toggleFilters('ffFiltersHeader', false)">
-                        全解除
-                      </button>
-                    </div>
-
-                    <div id="ffFiltersHeader" class="ff-grid">
-                      <label><input type="checkbox" value="未検査" checked onchange="updateView()" /> 未検査</label>
-                      <label><input type="checkbox" value="陰性" checked onchange="updateView()" /> 陰性</label>
-                      <label><input type="checkbox" value="FIV+" checked onchange="updateView()" /> FIV+</label>
-                      <label><input type="checkbox" value="FeLV+" checked onchange="updateView()" /> FeLV+</label>
-                      <label><input type="checkbox" value="両方+" checked onchange="updateView()" /> 両方+</label>
-                    </div>
-                  </div>
                 </div>
               </th>
 
-              <th class="sortable" onclick="sortData('origin')">出身地 ↕</th>
-              <th class="sortable" onclick="sortData('foster')">卒業先 ↕</th>
               <th class="sortable" onclick="sortData('last_vaccine')">最終ワクチン ↕</th>
               <th class="sortable" onclick="sortData('last_flea')">最新ノミ取り ↕</th>
+              <th class="sortable" onclick="sortData('origin')">出身地 ↕</th>
+              <th class="sortable" onclick="sortData('foster')">卒業先 ↕</th>
             </tr>
           </thead>
 
@@ -529,10 +114,159 @@
         </table>
       </div>
     </div>
+
+    <!-- フィルタードロップダウン×4 -->
+    <div id="searchPanel" class="filter-dropdown search-modal-style">
+      <div class="dropdown-header sp-only">
+        <strong>検索・絞り込み設定</strong>
+        <span class="close-btn" onclick="closeAllDropdowns()">×</span>
+      </div>
+
+      <div class="controls-content" style="display: block; padding: 0">
+        <div class="filter-group">
+          <strong>検索：</strong>
+          <input
+            type="text"
+            id="searchKeyword"
+            class="search-box"
+            placeholder="名前、出身等で検索..."
+            oninput="updateView()"
+            style="width: 100%; box-sizing: border-box"
+          />
+        </div>
+
+        <div class="filter-group">
+          <!-- <strong>期間（年以上 / ヶ月以上）：</strong> -->
+          <strong>期間検出：</strong>
+          <div class="filter-card">
+            最終ワクチンから
+            <input type="number" id="alert_vac_y" class="input-num" value="0" oninput="updateView()" /> 年
+            <input type="number" id="alert_vac_m" class="input-num" value="0" oninput="updateView()" /> ヶ月
+          </div>
+          <div class="filter-card">
+            最終ノミ取りから
+            <input type="number" id="alert_flea_m" class="input-num" value="0" oninput="updateView()" /> ヶ月
+          </div>
+        </div>
+      </div>
+
+      <!-- <button
+        class="btn-main sp-only"
+        style="width: 100%; margin-top: 15px; background: #666"
+        onclick="closeAllDropdowns()"
+      >
+        設定を閉じる
+      </button> -->
+    </div>
+
+    <div id="statusDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
+      <div class="dropdown-header">
+        <strong>状態フィルター</strong>
+        <span class="close-btn" onclick="closeDropdown('statusDropdown')">×</span>
+      </div>
+
+      <div class="dropdown-btns">
+        <button class="btn-sm" onclick="toggleFilters('statusFilters', true)">全選択</button>
+        <button class="btn-sm" style="background: #666" onclick="toggleFilters('statusFilters', false)">全解除</button>
+      </div>
+
+      <div id="statusFilters" class="status-grid">
+        <label><input type="checkbox" value="保護中" checked onchange="updateView()" /> 保護中</label>
+        <label><input type="checkbox" value="預け中" checked onchange="updateView()" /> 預け中</label>
+        <label><input type="checkbox" value="治療中" checked onchange="updateView()" /> 治療中</label>
+        <label><input type="checkbox" value="入院中" checked onchange="updateView()" /> 入院中</label>
+        <label><input type="checkbox" value="Trial予定" checked onchange="updateView()" /> Trial予定</label>
+        <label><input type="checkbox" value="Trial中" checked onchange="updateView()" /> Trial中</label>
+        <label><input type="checkbox" value="卒業" checked onchange="updateView()" /> 卒業</label>
+        <label><input type="checkbox" value="卒業予定" checked onchange="updateView()" /> 卒業予定</label>
+        <label><input type="checkbox" value="未設定" checked onchange="updateView()" /> 未設定</label>
+        <label><input type="checkbox" value="永眠" onchange="updateView()" /> 永眠</label>
+      </div>
+    </div>
+    <div id="genderDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
+      <div class="dropdown-header">
+        <strong>性別フィルター</strong>
+        <span class="close-btn" onclick="closeDropdown('genderDropdown')">×</span>
+      </div>
+
+      <div class="dropdown-btns">
+        <button class="btn-sm" onclick="toggleFilters('genderFilters', true)">全選択</button>
+        <button class="btn-sm" style="background: #666" onclick="toggleFilters('genderFilters', false)">全解除</button>
+      </div>
+
+      <div id="genderFilters" class="gender-grid">
+        <label><input type="checkbox" value="メス" checked onchange="updateView()" /> メス</label>
+        <label><input type="checkbox" value="オス" checked onchange="updateView()" /> オス</label>
+        <label><input type="checkbox" value="メス(避妊済)" checked onchange="updateView()" /> 避妊済</label>
+        <label><input type="checkbox" value="オス(去勢済)" checked onchange="updateView()" /> 去勢済</label>
+        <label><input type="checkbox" value="不明" checked onchange="updateView()" /> 不明</label>
+      </div>
+    </div>
+    <div id="ffDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
+      <div class="dropdown-header">
+        <strong>FF結果フィルター</strong>
+        <span class="close-btn" onclick="closeDropdown('ffDropdown')">×</span>
+      </div>
+
+      <div class="dropdown-btns">
+        <button class="btn-sm" onclick="toggleFilters('ffFiltersHeader', true)">全選択</button>
+        <button class="btn-sm" style="background: #666" onclick="toggleFilters('ffFiltersHeader', false)">
+          全解除
+        </button>
+      </div>
+
+      <div id="ffFiltersHeader" class="ff-grid">
+        <label><input type="checkbox" value="未検査" checked onchange="updateView()" /> 未検査</label>
+        <label><input type="checkbox" value="陰性" checked onchange="updateView()" /> 陰性</label>
+        <label><input type="checkbox" value="FIV+" checked onchange="updateView()" /> FIV+</label>
+        <label><input type="checkbox" value="FeLV+" checked onchange="updateView()" /> FeLV+</label>
+        <label><input type="checkbox" value="両方+" checked onchange="updateView()" /> 両方+</label>
+      </div>
+    </div>
+
+    <div id="dataManagementMenu" class="filter-dropdown" onclick="event.stopPropagation()">
+      <div class="dropdown-header">
+        <strong>データ管理</strong>
+        <span class="close-btn" onclick="closeDropdown('dataManagementMenu')">×</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <button
+          class="ctx-item"
+          onclick="
+            closeAllDropdowns();
+            exportDBFull();
+          "
+        >
+          ⬇ データを書き出し (SAVE)
+        </button>
+        <button
+          class="ctx-item"
+          onclick="
+            closeAllDropdowns();
+            triggerDBImport();
+          "
+        >
+          ⬆ データを読み込み (LOAD)
+        </button>
+        <button
+          class="ctx-item dropdown-item-danger"
+          onclick="
+            closeAllDropdowns();
+            deleteAllData();
+          "
+        >
+          ⚠ 一覧のデータを全削除
+        </button>
+      </div>
+    </div>
+
+    <!-- コンテキストメニュー -->
     <div id="ctxMenu" class="ctx-menu" hidden>
       <button type="button" id="ctxDeleteBtn" class="ctx-item danger">この猫を削除</button>
       <button type="button" id="ctxCancelBtn" class="ctx-item">キャンセル</button>
     </div>
+    <div id="modalOverlay" class="modal-overlay" onclick="closeAllDropdowns()"></div>
+
     <script>
       /* --- DB & Data Logic --- */
       const DB_NAME = "CatManagementDB";
@@ -556,6 +290,124 @@
 
         updateView();
       }
+
+      // ===============================
+      // DB export / import（写真あり）
+      // ===============================
+
+      // --- 書き出し機能（メッセージ追加） ---
+      window.exportDBFull = async function exportDBFull() {
+        const db = await new Promise((res, rej) => {
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onsuccess = (e) => res(e.target.result);
+          req.onerror = () => rej(req.error);
+        });
+
+        const [summaries, details] = await Promise.all([
+          new Promise((res) => {
+            const tx = db.transaction(STORE_SUMMARY, "readonly");
+            const rq = tx.objectStore(STORE_SUMMARY).getAll();
+            rq.onsuccess = () => res(rq.result || []);
+          }),
+          new Promise((res) => {
+            const tx = db.transaction(STORE_DETAIL, "readonly");
+            const rq = tx.objectStore(STORE_DETAIL).getAll();
+            rq.onsuccess = () => res(rq.result || []);
+          }),
+        ]);
+
+        const payload = {
+          app: "cat-carte",
+          exportedAt: new Date().toISOString(),
+          cat_summaries: summaries,
+          cat_details: details,
+        };
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const pad = (n) => String(n).padStart(2, "0");
+        const now = new Date();
+        const fname = `cat-backup_${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.json`;
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fname;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        // 完了メッセージを表示
+        alert(`データをDLしました。\nファイル名：${fname}`);
+      };
+
+      // ファイル選択ダイアログを開くためのヘルパー
+      window.triggerDBImport = function triggerDBImport() {
+        const inp = document.getElementById("dbImportFile");
+        if (!inp) return;
+        inp.value = ""; // 連続で同じファイルを選べるようにリセット
+        inp.click();
+      };
+
+      // --- 読み込み機能（メッセージ修正） ---
+      window.handleDBImport = async function handleDBImport(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!confirm("バックアップJSONを読み込みます。現在のデータに上書き・追加されますがよろしいですか？")) return;
+
+        try {
+          const text = await file.text();
+          const data = JSON.parse(text);
+          const summaries = data?.cat_summaries || [];
+          const details = data?.cat_details || [];
+
+          const db = await openDB();
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction([STORE_SUMMARY, STORE_DETAIL], "readwrite");
+            summaries.forEach((item) => item.id && tx.objectStore(STORE_SUMMARY).put(item));
+            details.forEach((item) => item.id && tx.objectStore(STORE_DETAIL).put(item));
+            tx.oncomplete = resolve;
+            tx.onerror = reject;
+          });
+
+          await loadData();
+          alert("データを読み込みました。");
+        } catch (err) {
+          alert("読み込みに失敗しました。ファイル形式を確認してください。");
+        }
+      };
+
+      // --- 全削除機能（新規追加） ---
+      async function deleteAllData() {
+        // 第1段階の確認（バックアップ推奨）
+        const step1 = confirm(
+          "【警告】すべてのデータが削除されます。\n実行前にバックアップ（書き出し）を行うことを強くお勧めします。\n本当に削除を進めてよろしいですか？",
+        );
+        if (!step1) return;
+
+        // 第2段階の確認（最終確認）
+        const step2 = confirm("本当によろしいですか？\nこの操作は取り消せません。データベースは空になります。");
+        if (!step2) return;
+
+        try {
+          const db = await openDB();
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction([STORE_SUMMARY, STORE_DETAIL], "readwrite");
+            tx.objectStore(STORE_SUMMARY).clear();
+            tx.objectStore(STORE_DETAIL).clear();
+            tx.oncomplete = resolve;
+            tx.onerror = reject;
+          });
+
+          cats = [];
+          updateView();
+          alert("すべてのデータを削除しました。");
+        } catch (err) {
+          alert("削除処理中にエラーが発生しました。");
+        }
+      }
+
+      /* --- 以上、データ出し入れ関係は以上まで。 --- */
 
       /* --- helpers：index8内に必ず置く（警告が安定する） --- */
       function formatDateShort(dateStr) {
@@ -581,27 +433,84 @@
       }
 
       /* --- UI Logic --- */
+      function isMobile() {
+        return window.innerWidth <= 600;
+      }
+
+      function openOverlay() {
+        document.body.classList.add("modal-open");
+        const ov = document.getElementById("modalOverlay");
+        if (ov) ov.classList.add("active");
+      }
+
+      function closeOverlay() {
+        document.body.classList.remove("modal-open");
+        const ov = document.getElementById("modalOverlay");
+        if (ov) ov.classList.remove("active");
+      }
+
+      function closeAllDropdowns() {
+        document.querySelectorAll(".filter-dropdown").forEach((d) => d.classList.remove("active"));
+        closeOverlay();
+      }
+
       function toggleDropdown(event, id) {
         event.stopPropagation();
+
         const target = document.getElementById(id);
-        const trigger = event.currentTarget;
         const isActive = target.classList.contains("active");
 
-        document.querySelectorAll(".filter-dropdown").forEach((d) => d.classList.remove("active"));
+        // まず全部閉じる
+        closeAllDropdowns();
 
-        if (!isActive) {
-          const rect = trigger.getBoundingClientRect();
-          target.style.top = rect.bottom + 5 + "px";
-          target.style.left = Math.min(rect.left, window.innerWidth - 200) + "px";
+        // 既に開いてたなら閉じて終了
+        if (isActive) return;
+
+        // スマホは「モーダルとして中央表示」
+        if (isMobile()) {
           target.classList.add("active");
+          openOverlay();
+          return;
         }
+
+        // PC：位置計算の修正
+        const trigger = event.currentTarget;
+        const rect = trigger.getBoundingClientRect();
+
+        target.style.top = rect.bottom + 5 + "px";
+        target.classList.add("active"); // 幅を測るために一旦表示
+
+        // --- 右端はみ出し防止ロジック ---
+        const menuWidth = target.offsetWidth;
+        let leftPos = rect.left;
+
+        // ボタンの左端＋メニュー幅が、画面幅を超える場合
+        if (leftPos + menuWidth > window.innerWidth) {
+          // 右端から10pxの位置に配置
+          leftPos = window.innerWidth - menuWidth - 10;
+        }
+
+        target.style.left = leftPos + "px";
       }
 
       function closeDropdown(id) {
         document.getElementById(id).classList.remove("active");
+        if (isMobile()) closeOverlay();
       }
 
-      window.onclick = () => document.querySelectorAll(".filter-dropdown").forEach((d) => d.classList.remove("active"));
+      // 修正版：クリックした場所がメニューの外側だった時だけ閉じる
+      window.addEventListener("click", (e) => {
+        if (isMobile()) return; // スマホは幕(overlay)で制御するので何もしない
+
+        // クリックされたのがボタンでもメニュー内でもなければ閉じる
+        if (
+          !e.target.closest(".action-chip") &&
+          !e.target.closest(".filter-dropdown") &&
+          !e.target.closest(".controls-summary")
+        ) {
+          closeAllDropdowns();
+        }
+      });
 
       function toggleFilters(groupId, checked) {
         document.querySelectorAll(`#${groupId} input`).forEach((cb) => (cb.checked = checked));
@@ -635,7 +544,9 @@
         const filtered = cats.filter((c) => {
           // 状態判定（先頭の状態名だけ）
           const rawStatus = (c.status || "").toString().trim();
-          const baseStatus = rawStatus.split(/[ 　:：]/)[0];
+          // 修正前: const baseStatus = rawStatus.split(/[ 　:：]/)[0];
+          // 修正後: カッコ（全角・半角）も区切り文字に追加します
+          const baseStatus = rawStatus.split(/[（( 　:：]/)[0];
 
           const matchStatus =
             (baseStatus && selStatuses.includes(baseStatus)) || (!baseStatus && selStatuses.includes("未設定"));
@@ -680,30 +591,51 @@
           const vAlert = dVac >= lVac && lVac > 0;
           const fAlert = dFlea >= lFlea && lFlea > 0;
           const stClass = getStatusBadgeClass(c.status);
+
+          // ステータス文字列（例：「預け中(田中さん)」）から「基本状態」と「中身」を分離
+          const fullStatus = c.status || "在留";
+          const match = fullStatus.match(/^(.*?)[（(](.*?)[）)]$/);
+
+          let baseStatus = fullStatus;
+          let detailContent = "";
+
+          if (match) {
+            baseStatus = match[1]; // カッコより前の部分
+            detailContent = match[2]; // カッコの内側のテキストのみ
+          }
+
           const vacText = formatDateShort(c.last_vaccine) + (vAlert ? ' <span class="warn-icon">⚠</span>' : "");
           const fleaText = formatDateShort(c.last_flea) + (fAlert ? ' <span class="warn-icon">⚠</span>' : "");
           const row = document.createElement("tr");
           const photoTag = c.photo ? `<img src="${c.photo}" class="cat-thumb">` : `<div class="cat-thumb"></div>`;
+
           row.onclick = () => (window.location.href = `med-record.html?id=${c.id}`);
           row.addEventListener("contextmenu", (e) => {
-            e.preventDefault(); // ブラウザ標準メニューを出さない
-            e.stopPropagation(); // window clickで即閉じないように
+            e.preventDefault();
+            e.stopPropagation();
             openCtxMenu(e.clientX, e.clientY, c.id);
           });
 
           row.innerHTML = `
             <td class="thumb-cell">${photoTag}</td>
-
-            <td><span class="status-badge ${stClass}">${c.status || "在留"}</span></td>
+            <td class="status-cell">
+              <div class="mobile-summary sp-only">
+                <div class="m-name"><strong>${c.name || "名前なし"}</strong></div>
+                <span class="status-badge ${stClass}">${baseStatus}</span>
+                ${detailContent ? `<div class="m-detail">${detailContent}</div>` : ""}
+              </div>
+              <span class="status-badge ${stClass} pc-only">${baseStatus}</span>
+              ${detailContent ? `<div class="status-detail pc-only">${detailContent}</div>` : ""}
+            </td>
             <td><strong>${c.name || "名前なし"}</strong></td>
             <td>${c.gender || "---"}</td>
             <td>${c.age_text || "---"}</td>
             <td class="${getFFClass(c.ff_result)}">${c.ff_result || "未検査"}</td>
-          
-            <td>${c.origin || "---"}</td>
-            <td>${c.foster || "---"}</td>
+            
             <td class="${vAlert ? "alert-text" : ""}">${vacText}</td>
             <td class="${fAlert ? "alert-text" : ""}">${fleaText}</td>
+            <td>${c.origin || "---"}</td>
+            <td>${c.foster || "---"}</td>
           `;
 
           list.appendChild(row);
@@ -739,6 +671,53 @@
 
       window.onload = loadData;
 
+      (function enableShiftHighlight() {
+        const wrapper = document.querySelector(".table-wrapper");
+        const table = document.querySelector(".table-wrapper table");
+        if (!wrapper || !table) return;
+
+        const update = () => {
+          const isMobile = window.innerWidth <= 600;
+          const wrapperRect = wrapper.getBoundingClientRect();
+
+          if (isMobile) {
+            // --- スマホ版：各行(tr)ごとに「状態セル」が吸着したか判定 ---
+            const rows = table.querySelectorAll("tbody tr");
+            rows.forEach((tr) => {
+              const cell = tr.querySelector(".status-cell");
+              if (!cell) return;
+
+              const cellRect = cell.getBoundingClientRect();
+              // 判定：セルの左端がラッパーの左端以下になったか（遊び2px）
+              // かつ、意図的なスクロール（5px以上）がある場合のみ
+              if (wrapper.scrollLeft > 5 && cellRect.left <= wrapperRect.left + 2) {
+                tr.classList.add("is-shifted");
+              } else {
+                tr.classList.remove("is-shifted");
+              }
+            });
+          } else {
+            // --- PC版：テーブル全体の「名前列(th)」が吸着したか判定 ---
+            const th3 = table.querySelector("thead th:nth-child(3)");
+            if (!th3) return;
+
+            const thRect = th3.getBoundingClientRect();
+            if (wrapper.scrollLeft > 5 && thRect.left <= wrapperRect.left + 2) {
+              table.classList.add("is-shifted");
+            } else {
+              table.classList.remove("is-shifted");
+            }
+          }
+        };
+
+        // スクロール時だけでなく、画面サイズ変更時もチェック
+        wrapper.addEventListener("scroll", update, { passive: true });
+        window.addEventListener("resize", update);
+
+        // 初期状態の反映
+        update();
+      })();
+
       // ※ openDetail はあなたの環境に合わせて別ファイルか既存実装を使ってください
       function openDetail(mode) {
         if (mode === "new") {
@@ -769,10 +748,23 @@
         ctxTargetId = null;
       }
 
-      // DBオープン（index8の loadData と同じDBを使う）
+      // DBオープン
       function openDB() {
         return new Promise((resolve, reject) => {
           const req = indexedDB.open(DB_NAME, 1);
+
+          // ★追加：初回作成・バージョン変更時に objectStore を用意する
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+
+            if (!db.objectStoreNames.contains(STORE_SUMMARY)) {
+              db.createObjectStore(STORE_SUMMARY, { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains(STORE_DETAIL)) {
+              db.createObjectStore(STORE_DETAIL, { keyPath: "id" });
+            }
+          };
+
           req.onsuccess = (e) => resolve(e.target.result);
           req.onerror = () => reject(req.error);
         });
