@@ -4,9 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>個別カルテ</title>
-    <!-- 28+33 G5に相当 -->
-    <!-- <link rel="icon" href="check-Blue.png" /> -->
-    <link rel="icon" href="check-Orange.png" />
+    <link rel="icon" href="check-Blue.png" />
+    <!-- <link rel="icon" href="check-Orange.png" /> -->
     <!-- 掲載用は↑Orange -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -256,21 +255,6 @@
         background-color: #fff5e6;
       }
 
-      .status-stamp {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        z-index: 10;
-        padding: 3px 10px;
-        border: 3px double var(--danger);
-        color: var(--danger);
-        font-weight: bold;
-        font-size: 14px;
-        transform: rotate(-10deg);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.9);
-      }
-
       .photo-del-btn {
         position: absolute;
         top: 8px;
@@ -518,7 +502,7 @@
         font-size: 14px;
         transform: rotate(-10deg);
         border-radius: 8px;
-        transition: all 0.3s;
+        /* transition: all 0.3s; */
       }
 
       /* --- モーダル共通 --- */
@@ -1005,7 +989,7 @@
           <div class="log-box" data-log="surgery">
             <div class="event-summary">
               <div>日付：<span data-res-date>---</span></div>
-              <div>年齢：<span data-res-age>---</span></div>
+              <div>当時年齢：<span data-res-age>---</span></div>
               <div>体重：<span data-res-weight>---</span></div>
             </div>
           </div>
@@ -1112,7 +1096,7 @@
                   <label>ステータス</label>
                   <select id="cat_status_input" onchange="toggleStatusDetail()">
                     <option>保護中</option>
-                    <option>預かり中</option>
+                    <option>預け中</option>
                     <option>治療中</option>
                     <option>入院中</option>
                     <option>Trial予定</option>
@@ -1359,9 +1343,8 @@
     <script src="../cat-carte-app/G8.js"></script>
     <script src="../cat-carte-app/input-settings.js"></script>
     <!-- <script src="../cat-carte-app/ff-theme-manager.js"></script> -->
-    
     <!-- <script src="cat_list_file/script/G8.js"></script> -->
-    <!-- <script src="cat_list_file/script/input-settings.js"></script> -->
     <!-- <script src="cat_list_file/script/ff-theme-manager.js"></script> -->
+    <!-- <script src="cat_list_file/script/input-settings.js"></script> -->
   </body>
 </html>
