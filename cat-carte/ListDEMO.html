@@ -291,7 +291,8 @@
           console.log("デモデータを読み込み中...");
           try {
             // 同一フォルダ内のサンプルJSONを取得
-            const response = await fetch("sample-json/sample-data.json");
+            // const response = await fetch("sample-json/sample-data.json");
+            const response = await fetch("sample-json/Mario-cat- character.json");
             const data = await response.json();
             const summaries = data.cat_summaries || [];
             const details = data.cat_details || [];
