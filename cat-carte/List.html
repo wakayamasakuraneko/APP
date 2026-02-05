@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>猫一覧</title>
-    <!-- <link rel="icon" href="check-Orange.png" /> -->
+    <!-- <link rel="icon" href="favicon/check-Orange.png" /> -->
     <link rel="icon" href="favicon/favicon2.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../cat-carte-app/label-color.css" />
@@ -180,7 +180,7 @@
         <label><input type="checkbox" value="卒業" checked onchange="updateView()" /> 卒業</label>
         <label><input type="checkbox" value="卒業予定" checked onchange="updateView()" /> 卒業予定</label>
         <label><input type="checkbox" value="未設定" checked onchange="updateView()" /> 未設定</label>
-        <label><input type="checkbox" value="永眠" onchange="updateView()" /> 永眠</label>
+        <label><input type="checkbox" value="永眠" checked onchange="updateView()" /> 永眠</label>
       </div>
     </div>
     <div id="genderDropdown" class="filter-dropdown" onclick="event.stopPropagation()">
@@ -277,18 +277,33 @@
       let sortConfig = { key: null, direction: 1 };
 
       async function loadData() {
-        const db = await new Promise((res) => {
+        const db = await new Promise((res, rej) => {
           const req = indexedDB.open(DB_NAME, 1);
+
+          // ★ ここを追加
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+
+            if (!db.objectStoreNames.contains(STORE_SUMMARY)) {
+              db.createObjectStore(STORE_SUMMARY, { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains(STORE_DETAIL)) {
+              db.createObjectStore(STORE_DETAIL, { keyPath: "id" });
+            }
+          };
+
           req.onsuccess = (e) => res(e.target.result);
+          req.onerror = () => rej(req.error);
         });
 
-        cats = await new Promise((res) => {
+        cats = await new Promise((res, rej) => {
           const tx = db.transaction(STORE_SUMMARY, "readonly");
           const req = tx.objectStore(STORE_SUMMARY).getAll();
           req.onsuccess = () => res(req.result);
+          req.onerror = () => rej(req.error);
         });
 
-        updateView();
+        updateView(); // ★ これはそのまま必要
       }
 
       // ===============================
