@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>猫カルテ一覧（試作）</title>
+    <meta
+      name="description"
+      content="保護猫シェルター／猫カフェ向け。猫のカルテを一覧で見やすくするブラウザ完結ツール（試作）。"
+    />
+
+    <!-- favicon -->
+    <link rel="icon" href="favicon/faviconB.png" />
+
+    <link rel="stylesheet" href="./cat-carte-info.css" />
+  </head>
+
+  <body>
+    <header class="hero">
+      <div class="container">
+        <!-- <p class="kicker">保護猫シェルター／猫カフェ向け（試作）</p> -->
+        <p class="kicker">保護猫シェルター／猫カフェ向け</p>
+        <h1 class="title">猫カルテ一覧ツール</h1>
+
+        <p class="lead">
+          猫が増えてくると、「いつワクチン？」「いつノミ取り？」が分かりにくくなります。<br />
+          これは、それを <strong>一覧で見やすくするため</strong> のページです。<br />
+          <span class="small">（インストール不要・ブラウザだけで動きます）</span>
+        </p>
+
+        <div class="cta-row">
+          <a
+            class="btn primary"
+            href="https://wakayamasakuraneko.github.io/APP/cat-carte/ListDEMO.html"
+            target="_blank"
+            rel="noopener"
+          >
+            ▶ デモで見る（サンプル入り）
+          </a>
+
+          <a
+            class="btn"
+            href="https://wakayamasakuraneko.github.io/APP/cat-carte/List.html"
+            target="_blank"
+            rel="noopener"
+          >
+            ▶ まっさらで使う（空の状態）
+          </a>
+        </div>
+
+        <div class="note-box">
+          <p class="note">
+            <strong>デモ：</strong> 架空の猫データが入っています。操作の練習用です。<br />
+            <strong>空：</strong> データが何も入っていない状態です。登録して試したい方向けです。
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>できること</h2>
+        <ul class="list">
+          <li>猫の情報を <strong>一覧</strong> で見られます。</li>
+          <li>
+            年齢・性別・ウイルス検査結果などで <strong>並べ替え</strong> や <strong>絞り込み</strong> ができます。
+          </li>
+          <li>期間を決めると、注意が必要な猫に <span class="badge">⚠</span> が出ます。</li>
+          <li><strong>猫をクリックすると、個別カルテへ移動して編集できます。</strong></li>
+          <li>体重の記録は、下のグラフに自動で表示されます。</li>
+          <!-- <li>スマホでも見やすいように、横スクロール対応です</li> -->
+        </ul>
+      </section>
+
+      <section class="grid">
+        <section class="card">
+          <h2>データはどこに保存されますか？</h2>
+          <p class="text">
+            データは <strong>いま見ている端末の中</strong> に保存されます。<br />
+            必要に応じて、データの書き出し・読み込みをして下さい。
+          </p>
+        </section>
+
+        <section class="card">
+          <h2>ちょっとした注意</h2>
+          <ul class="list">
+            <!-- <li>プロ仕様ではありません。</li> -->
+            <li>イベント削除（ⓧ）は <strong>同じ日付のものがまとめて消えて</strong>しまいます。</li>
+          </ul>
+        </section>
+      </section>
+
+      <!-- <section class="card mini">
+        <h2>どっちを押せばいい？</h2>
+        <div class="choice">
+          <div class="chip">
+            <div class="chip-title">まず触ってみたい</div>
+            <div class="chip-text">→ <strong>デモ（サンプル入り）</strong></div>
+          </div>
+          <div class="chip">
+            <div class="chip-title">自分のところで試したい</div>
+            <div class="chip-text">→ <strong>空の状態</strong></div>
+          </div>
+        </div>
+      </section> -->
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div class="footer-left">
+          <!-- <div class="footer-title">猫カルテ一覧ツール（試作）</div> -->
+          <div class="footer-title">猫カルテ一覧ツール</div>
+          <div class="footer-sub">掲載開始日：2026年2月</div>
+        </div>
+
+        <div class="footer-right">
+          <a class="footer-link" href="https://wakayamasakuraneko.com/index.htm" target="_blank" rel="noopener">
+            和歌山スペイクリニック さくらねこ HP
+          </a>
+        </div>
+      </div>
+
+      <!-- <div class="container footer-bottom">
+        <p class="footer-note">※ このページは紹介用です。運用・検証は各団体の判断でお願いいたします。</p>
+      </div> -->
+    </footer>
+  </body>
+</html>
