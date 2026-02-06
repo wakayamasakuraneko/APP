@@ -682,6 +682,9 @@
         });
 
         document.getElementById("counter").innerText = `登録数: ${cats.length}匹 (該当: ${data.length}件)`;
+
+        // ★ 追加：リスト描画後に吸着判定を再実行する
+        if (window.checkShiftHighlight) window.checkShiftHighlight();
       }
 
       function sortData(key) {
@@ -716,20 +719,19 @@
         const table = document.querySelector(".table-wrapper table");
         if (!wrapper || !table) return;
 
-        const update = () => {
+        // 判定ロジックをグローバル関数として定義（renderListから呼べるようにする）
+        window.checkShiftHighlight = () => {
           const isMobile = window.innerWidth <= 600;
           const wrapperRect = wrapper.getBoundingClientRect();
 
           if (isMobile) {
-            // --- スマホ版：各行(tr)ごとに「状態セル」が吸着したか判定 ---
+            // スマホ版：各行(tr)ごとに吸着判定
             const rows = table.querySelectorAll("tbody tr");
             rows.forEach((tr) => {
               const cell = tr.querySelector(".status-cell");
               if (!cell) return;
-
               const cellRect = cell.getBoundingClientRect();
-              // 判定：セルの左端がラッパーの左端以下になったか（遊び2px）
-              // かつ、意図的なスクロール（5px以上）がある場合のみ
+              // 遊び2px、スクロールが5px以上ある場合に吸着クラスを付与
               if (wrapper.scrollLeft > 5 && cellRect.left <= wrapperRect.left + 2) {
                 tr.classList.add("is-shifted");
               } else {
@@ -737,10 +739,9 @@
               }
             });
           } else {
-            // --- PC版：テーブル全体の「名前列(th)」が吸着したか判定 ---
+            // PC版：名前列(3列目)の吸着判定
             const th3 = table.querySelector("thead th:nth-child(3)");
             if (!th3) return;
-
             const thRect = th3.getBoundingClientRect();
             if (wrapper.scrollLeft > 5 && thRect.left <= wrapperRect.left + 2) {
               table.classList.add("is-shifted");
@@ -750,12 +751,12 @@
           }
         };
 
-        // スクロール時だけでなく、画面サイズ変更時もチェック
-        wrapper.addEventListener("scroll", update, { passive: true });
-        window.addEventListener("resize", update);
+        // スクロール時と画面サイズ変更時に実行
+        wrapper.addEventListener("scroll", window.checkShiftHighlight, { passive: true });
+        window.addEventListener("resize", window.checkShiftHighlight);
 
-        // 初期状態の反映
-        update();
+        // 初期実行
+        window.checkShiftHighlight();
       })();
 
       // ※ openDetail はあなたの環境に合わせて別ファイルか既存実装を使ってください
