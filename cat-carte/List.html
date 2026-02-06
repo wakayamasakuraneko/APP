@@ -278,7 +278,7 @@
 
       async function loadData() {
         const db = await new Promise((res, rej) => {
-          const req = indexedDB.open(DB_NAME, 1);
+          const req = indexedDB.open(DB_NAME, 2);
 
           // ★ ここを追加
           req.onupgradeneeded = (e) => {
@@ -312,25 +312,42 @@
 
       // --- 書き出し機能（メッセージ追加） ---
       window.exportDBFull = async function exportDBFull() {
+        // DBを安全にオープン（どの入口からでも store を保証）
         const db = await new Promise((res, rej) => {
-          const req = indexedDB.open(DB_NAME, 1);
+          const req = indexedDB.open(DB_NAME, 2);
+
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+
+            if (!db.objectStoreNames.contains(STORE_SUMMARY)) {
+              db.createObjectStore(STORE_SUMMARY, { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains(STORE_DETAIL)) {
+              db.createObjectStore(STORE_DETAIL, { keyPath: "id" });
+            }
+          };
+
           req.onsuccess = (e) => res(e.target.result);
           req.onerror = () => rej(req.error);
         });
 
+        // summaries / details を同時取得
         const [summaries, details] = await Promise.all([
-          new Promise((res) => {
+          new Promise((res, rej) => {
             const tx = db.transaction(STORE_SUMMARY, "readonly");
             const rq = tx.objectStore(STORE_SUMMARY).getAll();
             rq.onsuccess = () => res(rq.result || []);
+            rq.onerror = () => rej(rq.error);
           }),
-          new Promise((res) => {
+          new Promise((res, rej) => {
             const tx = db.transaction(STORE_DETAIL, "readonly");
             const rq = tx.objectStore(STORE_DETAIL).getAll();
             rq.onsuccess = () => res(rq.result || []);
+            rq.onerror = () => rej(rq.error);
           }),
         ]);
 
+        // 書き出しデータ構造
         const payload = {
           app: "cat-carte",
           exportedAt: new Date().toISOString(),
@@ -338,12 +355,20 @@
           cat_details: details,
         };
 
-        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        // JSON生成
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {
+          type: "application/json",
+        });
         const url = URL.createObjectURL(blob);
+
+        // ファイル名生成
         const pad = (n) => String(n).padStart(2, "0");
         const now = new Date();
-        const fname = `cat-backup_${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.json`;
+        const fname = `cat-backup_${now.getFullYear()}-${pad(
+          now.getMonth() + 1,
+        )}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.json`;
 
+        // ダウンロード実行
         const a = document.createElement("a");
         a.href = url;
         a.download = fname;
@@ -352,8 +377,8 @@
         a.remove();
         URL.revokeObjectURL(url);
 
-        // 完了メッセージを表示
-        alert(`データをDLしました。\nファイル名：${fname}`);
+        // 完了通知
+        alert(`データを書き出しました。\nファイル名：${fname}`);
       };
 
       // ファイル選択ダイアログを開くためのヘルパー
@@ -766,7 +791,7 @@
       // DBオープン
       function openDB() {
         return new Promise((resolve, reject) => {
-          const req = indexedDB.open(DB_NAME, 1);
+          const req = indexedDB.open(DB_NAME, 2);
 
           // ★追加：初回作成・バージョン変更時に objectStore を用意する
           req.onupgradeneeded = (e) => {
