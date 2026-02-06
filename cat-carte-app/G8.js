@@ -1,11 +1,12 @@
-// G8をカテゴリーベースの色分けに完全対応
+// med-record.htmlに使用するJS
+// G8.jsにて管理
 
 // ==========================================
 // 1. データベース設定 & 基本操作 (IndexedDB)
 // ==========================================
 
 const DB_NAME = "CatManagementDB";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_SUMMARY = "cat_summaries";
 const STORE_DETAIL = "cat_details";
 
@@ -1091,3 +1092,4 @@ function updateAgeFromBirth(val) {
   }
   if (ageCell) ageCell.textContent = calcAgeTextAt(val, new Date().toISOString().split("T")[0], ageMode);
 }
+
